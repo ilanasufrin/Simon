@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="250px" height="250px" viewBox="0 0 250 250" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.1 (33804) - http://www.bohemiancoding.com/sketch -->
+    <title>YellowPad</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M266,250 C412.907743,250 532,130.907743 532,-16 C532,-162.907743 412.907743,-282 266,-282 C119.092257,-282 0,-162.907743 0,-16 C0,130.907743 119.092257,250 266,250 Z M266,109 C335.035594,109 391,53.0355937 391,-16 C391,-85.0355937 335.035594,-141 266,-141 C196.964406,-141 141,-85.0355937 141,-16 C141,53.0355937 196.964406,109 266,109 Z" id="path-1"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="Combined-Shape" fill-opacity="0" fill="#D8D8D8" xlink:href="#path-1"></use>
+        <rect id="YellowPad" fill="#EAEB74" mask="url(#mask-2)" x="0" y="0" width="250" height="250"></rect>
+    </g>
+</svg>
