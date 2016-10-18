@@ -12,6 +12,9 @@
         "noLib": false,
         "newLine": "CRLF"
     },
+    "exclude": [
+        "node_modules"
+    ],
     "filesGlob": [
         "./src/*.ts",
         "./typings/**/*.ts"
