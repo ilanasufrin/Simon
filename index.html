@@ -5,8 +5,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>TicTacToe</title>
-  <meta name="description" content="TicTacToe game">
+  <title>Simon</title>
+  <meta name="description" content="Simon game">
   <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,"><!-- Suppress browser request for favicon.ico -->
 
   <!-- To ensure CSS files are downloaded in parallel, always include external CSS before external JavaScript. -->
@@ -24,7 +24,7 @@
 </head>
 <body ng-cloak>
 <div id="gameArea">
-  <div ng-repeat="row in [0, 1, 2]"
+<!--   <div ng-repeat="row in [0, 1, 2]"
       style="position:absolute; top:{{row * 33}}%; left:0; width:100%; height:33%;">
     <div ng-repeat="col in [0, 1, 2]"
         style="position:absolute; top:0; left:{{col * 33}}%; width:33%; height:100%;"
@@ -53,6 +53,16 @@
                 stroke-width="5%"/>
         </svg>
       </div>
+    </div>
+  </div> -->
+    <div class="canvas">
+    <div style="width:100%; height:50%;" class="row">
+      <div class="pad green" tabindex="0" style="width:50%; height:100%;" ></div>
+      <div class="pad red" tabindex="0" style="width:50%; height:100%;"></div>
+    </div>
+    <div style="width:100%; height:50%;" class="row">
+      <div class="pad yellow" tabindex="0" style="width:50%; height:100%";></div>
+      <div class="pad blue" tabindex="0" style="width:50%; height:100%;"></div>
     </div>
   </div>
 </div>
