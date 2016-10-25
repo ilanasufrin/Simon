@@ -172,8 +172,8 @@ interface IState {
   // player1Sequence: sequence;
   // player2Sequence: sequence;
   // sequences: [Sequence, Sequence, Sequence];
-  expectedSequence: sequence;
-  playerSequence: sequence;
+  expectedSequence: Sequence;
+  playerSequence: Sequence;
   delta: SequenceDelta;
 }
 
@@ -184,8 +184,14 @@ module gameLogic {
     return emptySequence;
   }
 
+  function getInitialSequencePopulated(): Sequence {
+    let sequence: Sequence = [];
+    sequence.push(Math.floor(Math.random()*4));
+    return sequence;
+  }
+
   export function getInitialState(): IState {
-    return {expectedSequence: getInitialSequence(), playerSequence: getInitialSequence(), delta: null}
+    return {expectedSequence: getInitialSequencePopulated(), playerSequence: getInitialSequence(), delta: null}
   }
 
 
@@ -240,9 +246,9 @@ module gameLogic {
     // let winner = getWinner(sequence2AfterMove, turnIndexBeforeMove);
 
     //TODO do this at a designated time
-    let newColor = addToExpectedSequence(stateBeforeMove);
-    console.log('next color in sequence', newColor);
-    sequence1AfterMove.push(newColor);
+    // let newColor = addToExpectedSequence(stateBeforeMove);
+    // console.log('next color in sequence', newColor);
+    // sequence1AfterMove.push(newColor);
 
     stateBeforeMove.playerSequence.push(color);
     sequence2AfterMove.push(color);
@@ -258,6 +264,20 @@ module gameLogic {
     } else {
       // Game continues. Now it's the opponent's turn (the turn switches from 0 to 1 and 1 to 0).
       log.info('game continues');
+
+      //clear the player's sequence so we can start the pattern over
+      //but only if the player has submitted enough colors to make a full sequence
+      if (sequence1AfterMove.length === sequence2AfterMove.length) {
+        log.info('submitted a full pattern, clearing');
+        sequence2AfterMove = [];
+
+        //add a new color for the next round
+        let newColor = addToExpectedSequence(stateBeforeMove);
+        console.log('next color in sequence', newColor);
+        sequence1AfterMove.push(newColor);
+      }
+
+
       turnIndexAfterMove = 1 - turnIndexBeforeMove;
       endMatchScores = null;
     }
