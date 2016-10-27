@@ -185,6 +185,7 @@ module game {
       checkMoveOk: gameLogic.checkMoveOk,
       updateUI: updateUI,
       gotMessageFromPlatform: null,
+      animateSequence: animateSequence
     });
   }
 
@@ -217,6 +218,22 @@ module game {
       animationEndedTimeout = $timeout(animationEndedCallback, 500);
     }
   }
+
+  export function animateSequence(state: IState) {
+    var i = 0;
+    var animate = function(){
+        if (i == state.expectedSequence.length) {
+         clearInterval(this);
+        }
+        else {
+          console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]) );
+          i++;
+        }
+    };
+    setInterval(animate, 2000);
+    animate();
+  }
+
 
   function animationEndedCallback() {
     log.info("Animation ended");

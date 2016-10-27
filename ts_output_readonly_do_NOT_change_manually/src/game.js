@@ -160,6 +160,7 @@ var game;
             checkMoveOk: gameLogic.checkMoveOk,
             updateUI: updateUI,
             gotMessageFromPlatform: null,
+            animateSequence: animateSequence
         });
     }
     game.init = init;
@@ -193,6 +194,21 @@ var game;
         }
     }
     game.updateUI = updateUI;
+    function animateSequence(state) {
+        var i = 0;
+        var animate = function () {
+            if (i == state.expectedSequence.length) {
+                clearInterval(this);
+            }
+            else {
+                console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]));
+                i++;
+            }
+        };
+        setInterval(animate, 2000);
+        animate();
+    }
+    game.animateSequence = animateSequence;
     function animationEndedCallback() {
         log.info("Animation ended");
         maybeSendComputerMove();
