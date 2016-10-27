@@ -227,6 +227,7 @@ module game {
         }
         else {
           console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]) );
+          handleAnimationTiming(state.expectedSequence[i]);
           i++;
         }
     };
@@ -234,6 +235,56 @@ module game {
     animate();
   }
 
+  function handleAnimationTiming(el: number) {
+    switch(el) {
+      case 0:
+        var myEl = angular.element( document.querySelector( '.green' ) );
+        myEl.addClass('highlighted');
+        setTimeout(function(){
+          myEl.addClass('unHighlighted');
+          myEl.removeClass('highlighted');
+        }, 1000);
+        setTimeout(function(){
+          myEl.removeClass('unHighlighted');
+        }, 1500);
+          break;
+      case 1:
+        var myEl = angular.element( document.querySelector( '.red' ) );
+        myEl.addClass('highlighted');
+        setTimeout(function(){
+          myEl.addClass('unHighlighted');
+          myEl.removeClass('highlighted');
+        }, 1000);
+        setTimeout(function(){
+          myEl.removeClass('unHighlighted');
+        }, 1500);
+          break;
+      case 2:
+        var myEl = angular.element( document.querySelector( '.yellow' ) );
+        myEl.addClass('highlighted');
+        setTimeout(function(){
+          myEl.addClass('unHighlighted');
+          myEl.removeClass('highlighted');
+        }, 1000);
+        setTimeout(function(){
+          myEl.removeClass('unHighlighted');
+        }, 1500);
+          break;
+      case 3:
+        var myEl = angular.element( document.querySelector( '.blue' ) );
+        myEl.addClass('highlighted');
+        setTimeout(function(){
+          myEl.addClass('unHighlighted');
+          myEl.removeClass('highlighted');
+        }, 1000);
+        setTimeout(function(){
+          myEl.removeClass('unHighlighted');
+        }, 1500);
+          break;
+      default:
+          console.error('unrecognized element');
+    }
+  }
 
   function animationEndedCallback() {
     log.info("Animation ended");

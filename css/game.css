@@ -79,6 +79,20 @@ body {
   background-size: cover;
 }
 
+.highlighted {
+    opacity: 1;
+    transition: opacity .5s ease-in-out;
+    -moz-transition: opacity .5s ease-in-out;
+    -webkit-transition: opacity .5s ease-in-out;
+}
+
+.unHighlighted {
+    opacity: .5;
+    transition: opacity .5s ease-in-out;
+    -moz-transition: opacity .5s ease-in-out;
+    -webkit-transition: opacity .5s ease-in-out;
+}
+
 .slowlyAppear {
   animation: slowlyAppear 0.5s linear;
 }
