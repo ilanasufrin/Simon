@@ -173,6 +173,7 @@ module game {
   export let didMakeMove: boolean = false; // You can only make one move per updateUI
   export let animationEndedTimeout: ng.IPromise<any> = null;
   export let state: IState = null;
+  export let shouldBeDisabled : boolean = false;
 
   export function init() {
     registerServiceWorker();
@@ -220,70 +221,60 @@ module game {
   }
 
   export function animateSequence(state: IState) {
+    let playBtn = document.querySelector('.play-btn');
+    let animationIntervalId = 0;
+    shouldBeDisabled = true; //disable the button
+    let myEl = angular.element(document.querySelector('.canvas')); //disable the colors
+    myEl.addClass('noPointer');
     var i = 0;
     var animate = function(){
-        if (i == state.expectedSequence.length) {
-         clearInterval(this);
+        if (i === state.expectedSequence.length) {
+         clearInterval(animationIntervalId);
+         shouldBeDisabled = false; //re-enable the button
+         playBtn.disabled = false;
+         myEl.removeClass('noPointer'); //re-enable the colors
+         $rootScope.$apply(); //repaint the page
         }
         else {
           console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]) );
-          handleAnimationTiming(state.expectedSequence[i]);
+          pickElement(state.expectedSequence[i]);
           i++;
         }
     };
-    setInterval(animate, 2000);
+    animationIntervalId = setInterval(animate, 2000);
     animate();
+
   }
 
-  function handleAnimationTiming(el: number) {
+  function pickElement(el: number) {
     switch(el) {
       case 0:
-        var myEl = angular.element( document.querySelector( '.green' ) );
-        myEl.addClass('highlighted');
-        setTimeout(function(){
-          myEl.addClass('unHighlighted');
-          myEl.removeClass('highlighted');
-        }, 1000);
-        setTimeout(function(){
-          myEl.removeClass('unHighlighted');
-        }, 1500);
+       handleAnimationTiming('.green');
           break;
       case 1:
-        var myEl = angular.element( document.querySelector( '.red' ) );
-        myEl.addClass('highlighted');
-        setTimeout(function(){
-          myEl.addClass('unHighlighted');
-          myEl.removeClass('highlighted');
-        }, 1000);
-        setTimeout(function(){
-          myEl.removeClass('unHighlighted');
-        }, 1500);
+          handleAnimationTiming('.red');
           break;
       case 2:
-        var myEl = angular.element( document.querySelector( '.yellow' ) );
-        myEl.addClass('highlighted');
-        setTimeout(function(){
-          myEl.addClass('unHighlighted');
-          myEl.removeClass('highlighted');
-        }, 1000);
-        setTimeout(function(){
-          myEl.removeClass('unHighlighted');
-        }, 1500);
+          handleAnimationTiming('.yellow');
           break;
       case 3:
-        var myEl = angular.element( document.querySelector( '.blue' ) );
-        myEl.addClass('highlighted');
-        setTimeout(function(){
-          myEl.addClass('unHighlighted');
-          myEl.removeClass('highlighted');
-        }, 1000);
-        setTimeout(function(){
-          myEl.removeClass('unHighlighted');
-        }, 1500);
+          handleAnimationTiming('.blue');
           break;
       default:
           console.error('unrecognized element');
     }
+  }
+
+  function handleAnimationTiming(el: string) {
+     var myEl = angular.element(document.querySelector(el));
+      myEl.addClass('highlighted');
+      setTimeout(function(){
+        myEl.addClass('unHighlighted');
+        myEl.removeClass('highlighted');
+      }, 1000);
+      setTimeout(function(){
+        myEl.removeClass('unHighlighted');
+      }, 1500);
   }
 
   function animationEndedCallback() {
