@@ -53,6 +53,7 @@ var gameLogic;
         console.log('no winner');
         return -1; //no winner
     }
+    gameLogic.getWinner = getWinner;
     /**
      * Returns the move that should be performed when player
      * with index turnIndexBeforeMove makes a move to their sequence.
@@ -70,10 +71,6 @@ var gameLogic;
         log.info('sequence after copying');
         log.info(sequence2AfterMove);
         // let winner = getWinner(sequence2AfterMove, turnIndexBeforeMove);
-        //TODO do this at a designated time
-        // let newColor = addToExpectedSequence(stateBeforeMove);
-        // console.log('next color in sequence', newColor);
-        // sequence1AfterMove.push(newColor);
         stateBeforeMove.playerSequence.push(color);
         sequence2AfterMove.push(color);
         var winner = getWinner(stateBeforeMove, turnIndexBeforeMove);
@@ -105,7 +102,7 @@ var gameLogic;
                 //keep the same player until a sequence has been completed
                 turnIndexAfterMove = turnIndexBeforeMove;
             }
-            endMatchScores = null; //TODO figure out if this needs to only happen after a sequence
+            endMatchScores = null;
         }
         var delta = color;
         var stateAfterMove = { delta: delta, playerSequence: sequence2AfterMove, expectedSequence: sequence1AfterMove };
@@ -130,7 +127,7 @@ var gameLogic;
             return;
         }
         var deltaValue = move.stateAfterMove.delta;
-        console.log('delta value', deltaValue);
+        console.debug('delta value', deltaValue);
         // let row = deltaValue.row;
         // let col = deltaValue.col;
         //idk why this is here yet

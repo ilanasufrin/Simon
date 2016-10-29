@@ -161,17 +161,12 @@
 
 type Sequence = number[];
 
-// TODO decide if I just want to make the sequences multidimensional arrays so I know where the change is coming from
+
 interface SequenceDelta {
   color: number;
-  // whichSequence: number;
 }
 
 interface IState {
-  // expectedSequence: sequence;
-  // player1Sequence: sequence;
-  // player2Sequence: sequence;
-  // sequences: [Sequence, Sequence, Sequence];
   expectedSequence: Sequence;
   playerSequence: Sequence;
   delta: SequenceDelta;
@@ -214,7 +209,7 @@ module gameLogic {
   }
 
   //if there is newly a loss, return the index of whoever just lost
-  function getWinner(currentState: IState, turnIndexOfMove: number): number {
+  export function getWinner(currentState: IState, turnIndexOfMove: number): number {
     console.log('checking winner');
     console.log(currentState);
     if (!checkSequenceMatchesExpected(currentState)) {
@@ -244,11 +239,6 @@ module gameLogic {
     log.info('sequence after copying');
     log.info(sequence2AfterMove);
     // let winner = getWinner(sequence2AfterMove, turnIndexBeforeMove);
-
-    //TODO do this at a designated time
-    // let newColor = addToExpectedSequence(stateBeforeMove);
-    // console.log('next color in sequence', newColor);
-    // sequence1AfterMove.push(newColor);
 
     stateBeforeMove.playerSequence.push(color);
     sequence2AfterMove.push(color);
@@ -284,7 +274,7 @@ module gameLogic {
         turnIndexAfterMove = turnIndexBeforeMove;
       }
 
-      endMatchScores = null; //TODO figure out if this needs to only happen after a sequence
+      endMatchScores = null;
     }
 
     let delta: SequenceDelta = color;
@@ -310,7 +300,7 @@ module gameLogic {
       return;
     }
     let deltaValue: SequenceDelta = move.stateAfterMove.delta;
-    console.log('delta value', deltaValue);
+    console.debug('delta value', deltaValue);
     // let row = deltaValue.row;
     // let col = deltaValue.col;
     //idk why this is here yet

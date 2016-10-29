@@ -195,27 +195,51 @@ var game;
         }
     }
     game.updateUI = updateUI;
-    function animateSequence(state) {
+    function animateSequence(state, human, shouldPlayComputer) {
         var playBtn = document.querySelector('.play-btn');
         var animationIntervalId = 0;
         game.shouldBeDisabled = true; //disable the button
         var myEl = angular.element(document.querySelector('.canvas')); //disable the colors
         myEl.addClass('noPointer');
         var i = 0;
-        var animate = function () {
-            if (i === state.expectedSequence.length) {
-                clearInterval(animationIntervalId);
-                game.shouldBeDisabled = false; //re-enable the button
-                playBtn.disabled = false;
-                myEl.removeClass('noPointer'); //re-enable the colors
-                $rootScope.$apply(); //repaint the page
-            }
-            else {
-                console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]));
-                pickElement(state.expectedSequence[i]);
-                i++;
-            }
-        };
+        if (human) {
+            var animate = function () {
+                if (i === state.expectedSequence.length) {
+                    clearInterval(animationIntervalId);
+                    game.shouldBeDisabled = false; //re-enable the button
+                    playBtn.disabled = false;
+                    myEl.removeClass('noPointer'); //re-enable the colors
+                    $rootScope.$apply(); //repaint the page
+                    if (typeof shouldPlayComputer !== "undefined") {
+                        console.debug('in the callback');
+                        setTimeout(function () {
+                            animateSequence(state, false);
+                        }, 3000);
+                    }
+                }
+                else {
+                    console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]));
+                    pickElement(state.expectedSequence[i]);
+                    i++;
+                }
+            };
+        }
+        else {
+            var animate = function () {
+                if (i === state.playerSequence.length) {
+                    clearInterval(animationIntervalId);
+                    game.shouldBeDisabled = false; //re-enable the button
+                    playBtn.disabled = false;
+                    myEl.removeClass('noPointer'); //re-enable the colors
+                    $rootScope.$apply(); //repaint the page
+                }
+                else {
+                    console.log('computer SEQUENCE is ' + (state.playerSequence[i]));
+                    pickElement(state.playerSequence[i]);
+                    i++;
+                }
+            };
+        }
         animationIntervalId = setInterval(animate, 2000);
         animate();
     }
@@ -235,7 +259,7 @@ var game;
                 handleAnimationTiming('.blue');
                 break;
             default:
-                console.error('unrecognized element');
+                console.error('unrecognized element ', el);
         }
     }
     function handleAnimationTiming(el) {
@@ -262,8 +286,10 @@ var game;
     function maybeSendComputerMove() {
         if (!isComputerTurn())
             return;
+        console.debug('currentUpdateUI.move', game.currentUpdateUI.move);
         var move = aiService.findComputerMove(game.currentUpdateUI.move);
         log.info("Computer move: ", move);
+        animateSequence(game.state, true, true);
         makeMove(move);
     }
     function makeMove(move) {

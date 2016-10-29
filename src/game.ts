@@ -220,30 +220,53 @@ module game {
     }
   }
 
-  export function animateSequence(state: IState) {
+  export function animateSequence(state: IState, human: boolean, shouldPlayComputer: boolean) {
     let playBtn = document.querySelector('.play-btn');
     let animationIntervalId = 0;
     shouldBeDisabled = true; //disable the button
     let myEl = angular.element(document.querySelector('.canvas')); //disable the colors
     myEl.addClass('noPointer');
-    var i = 0;
-    var animate = function(){
-        if (i === state.expectedSequence.length) {
-         clearInterval(animationIntervalId);
-         shouldBeDisabled = false; //re-enable the button
-         playBtn.disabled = false;
-         myEl.removeClass('noPointer'); //re-enable the colors
-         $rootScope.$apply(); //repaint the page
-        }
-        else {
+    let i = 0;
+
+    if (human) {
+      let animate = function() {
+      if (i === state.expectedSequence.length) {
+          clearInterval(animationIntervalId);
+          shouldBeDisabled = false; //re-enable the button
+          playBtn.disabled = false;
+          myEl.removeClass('noPointer'); //re-enable the colors
+          $rootScope.$apply(); //repaint the page
+          if (typeof shouldPlayComputer !== "undefined") {
+             console.debug('in the callback');
+             setTimeout(function() {
+               animateSequence(state, false)
+             }, 3000);
+          }
+      } else {
           console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]) );
           pickElement(state.expectedSequence[i]);
           i++;
+      }
+      };
+    } else {
+        let animate = function() {
+        if (i === state.playerSequence.length) {
+            clearInterval(animationIntervalId);
+            shouldBeDisabled = false; //re-enable the button
+            playBtn.disabled = false;
+            myEl.removeClass('noPointer'); //re-enable the colors
+            $rootScope.$apply(); //repaint the page
         }
-    };
+        else {
+            console.log('computer SEQUENCE is ' + (state.playerSequence[i]) );
+            pickElement(state.playerSequence[i]);
+            i++;
+        }
+      };
+    }
+
     animationIntervalId = setInterval(animate, 2000);
     animate();
-
   }
 
   function pickElement(el: number) {
@@ -261,7 +284,7 @@ module game {
           handleAnimationTiming('.blue');
           break;
       default:
-          console.error('unrecognized element');
+          console.error('unrecognized element ', el);
     }
   }
 
@@ -291,8 +314,10 @@ module game {
 
   function maybeSendComputerMove() {
     if (!isComputerTurn()) return;
+    console.debug('currentUpdateUI.move', currentUpdateUI.move);
     let move = aiService.findComputerMove(currentUpdateUI.move);
     log.info("Computer move: ", move);
+    animateSequence(state, true, true);
     makeMove(move);
   }
 
