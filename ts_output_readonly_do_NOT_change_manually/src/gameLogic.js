@@ -47,8 +47,8 @@ var gameLogic;
         console.log(currentState);
         if (!checkSequenceMatchesExpected(currentState)) {
             console.log('there is a winner');
-            console.log(turnIndexOfMove);
-            return turnIndexOfMove;
+            console.log('this is the loser', turnIndexOfMove);
+            return 1 - turnIndexOfMove;
         }
         console.log('no winner');
         return -1; //no winner
@@ -81,6 +81,7 @@ var gameLogic;
         var turnIndexAfterMove;
         if (winner !== -1) {
             log.info('game over');
+            console.debug('the winner is ', winner);
             // Game over.
             turnIndexAfterMove = -1;
             endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
@@ -97,9 +98,14 @@ var gameLogic;
                 var newColor = addToExpectedSequence(stateBeforeMove);
                 console.log('next color in sequence', newColor);
                 sequence1AfterMove.push(newColor);
+                //switch players, but only once a full turn is completed
+                turnIndexAfterMove = 1 - turnIndexBeforeMove;
             }
-            turnIndexAfterMove = 1 - turnIndexBeforeMove;
-            endMatchScores = null;
+            else {
+                //keep the same player until a sequence has been completed
+                turnIndexAfterMove = turnIndexBeforeMove;
+            }
+            endMatchScores = null; //TODO figure out if this needs to only happen after a sequence
         }
         var delta = color;
         var stateAfterMove = { delta: delta, playerSequence: sequence2AfterMove, expectedSequence: sequence1AfterMove };
@@ -118,6 +124,7 @@ var gameLogic;
         var turnIndexBeforeMove = stateTransition.turnIndexBeforeMove;
         var stateBeforeMove = stateTransition.stateBeforeMove;
         var move = stateTransition.move;
+        console.debug('move', move);
         if (!stateBeforeMove && turnIndexBeforeMove === 0 &&
             angular.equals(createInitialMove(), move)) {
             return;
