@@ -179,7 +179,7 @@ module game {
   export let didMakeMove: boolean = false; // You can only make one move per updateUI
   export let animationEndedTimeout: ng.IPromise<any> = null;
   export let state: IState = null;
-  export let shouldBeDisabled : boolean = false;
+  export let shouldBeDisabled : boolean = true;
 
   export function init() {
     registerServiceWorker();
@@ -195,6 +195,7 @@ module game {
       gotMessageFromPlatform: null,
       animateSequence: animateSequence
     });
+     enableButtons();
   }
 
   function registerServiceWorker() {
@@ -335,6 +336,7 @@ module game {
   }
 
   function pickElement(el: number, human: boolean,) {
+    playSound(el);
     switch(el) {
       case 0:
        handleAnimationTiming('.green', human);
@@ -351,6 +353,11 @@ module game {
       default:
           console.error('unrecognized element ', el);
     }
+  }
+
+  function playSound(el: num) {
+    let audio = document.getElementById('simonSound' + el);
+    audio.play();
   }
 
   function handleAnimationTiming(el: string, human: boolean,) {
@@ -450,6 +457,7 @@ module game {
     // Move is legal, make it!
     log.info('move was legal');
     makeMove(nextMove);
+    playSound(color);
   }
 
 }

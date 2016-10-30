@@ -65,7 +65,19 @@ module aiService {
    * Returns an empty array if the game is over.
    */
   export function chooseFromPossibleMoves(state: IState, turnIndexBeforeMove: number): IMove {
-    let num: number = (Math.floor(Math.random()*4));
+    let winningChoice : number = state.delta;
+    let possibleMoves: number[] = [];
+    for (let i = 0; i <=3; i++) {
+      possibleMoves.push(i); //we will choose from all the colors
+    }
+
+    possibleMoves.push(winningChoice);
+    possibleMoves.push(winningChoice);
+    possibleMoves.push(winningChoice);
+    possibleMoves.push(winningChoice); //give a greater chance that we will choose the right color
+
+    let choice: number = (Math.floor(Math.random()*possibleMoves.length));
+    let num: number = possibleMoves[choice]
     console.debug('num ', num);
     move = gameLogic.createMove(state, num, turnIndexBeforeMove);
     console.debug('choosing', move);

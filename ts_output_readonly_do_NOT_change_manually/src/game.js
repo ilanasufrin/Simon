@@ -15,7 +15,7 @@ var game;
     game.didMakeMove = false; // You can only make one move per updateUI
     game.animationEndedTimeout = null;
     game.state = null;
-    game.shouldBeDisabled = false;
+    game.shouldBeDisabled = true;
     function init() {
         registerServiceWorker();
         translate.setTranslations(getTranslations());
@@ -30,6 +30,7 @@ var game;
             gotMessageFromPlatform: null,
             animateSequence: animateSequence
         });
+        enableButtons();
     }
     game.init = init;
     function registerServiceWorker() {
@@ -163,6 +164,7 @@ var game;
     }
     game.enableButtons = enableButtons;
     function pickElement(el, human) {
+        playSound(el);
         switch (el) {
             case 0:
                 handleAnimationTiming('.green', human);
@@ -179,6 +181,10 @@ var game;
             default:
                 console.error('unrecognized element ', el);
         }
+    }
+    function playSound(el) {
+        var audio = document.getElementById('simonSound' + el);
+        audio.play();
     }
     function handleAnimationTiming(el, human) {
         var myEl = angular.element(document.querySelector(el));
@@ -265,6 +271,7 @@ var game;
         // Move is legal, make it!
         log.info('move was legal');
         makeMove(nextMove);
+        playSound(color);
     }
     game.cellClicked = cellClicked;
 })(game || (game = {}));
