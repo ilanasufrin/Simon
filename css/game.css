@@ -215,6 +215,11 @@ body {
   animation: play 1000ms cubic-bezier(0, 0, .2, 1) infinite;
 }
 
+.disabledX {
+  color: gray;
+  margin: auto;
+}
+
 /*computer pointing animation*/
 
 @keyframes ghostPoint {

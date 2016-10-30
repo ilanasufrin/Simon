@@ -163,6 +163,12 @@
 //     game.init();
 //   });
 
+interface SupportedLanguages { en: string, fr: string };
+
+interface Translations {
+    [index: string]: SupportedLanguages;
+}
+
 
 module game {
   // Global variables are cleared when getting updateUI.
@@ -177,8 +183,9 @@ module game {
 
   export function init() {
     registerServiceWorker();
-    // translate.setTranslations(getTranslations());
-    // translate.setLanguage('en');
+    translate.setTranslations(getTranslations());
+    translate.setLanguage('en');
+   // log.log("Translation of 'GAME_OVER' is " + translate('GAME_OVER'));
     resizeGameAreaService.setWidthToHeight(1);
     moveService.setGame({
       minNumberOfPlayers: 2,
@@ -202,6 +209,15 @@ module game {
     }
   }
 
+  function getTranslations(): Translations {
+    return {
+        // GAME_OVER: {
+        //     en: "GAME OVER",
+        //     fr: "JEU TERMINÉ",
+        // }
+    };
+  }
+
   export function updateUI(params: IUpdateUI): void {
     log.info("Game got updateUI ILANA:", params);
 
@@ -221,6 +237,7 @@ module game {
         console.debug('we know the game has been lost')
         //the game has been lost so all buttons should be disabled
         disableButtons();
+        switchOutPlayButton();
       }
 
     }
@@ -242,6 +259,7 @@ module game {
           if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
              console.debug('winner in ANIMATE');
              disableButtons();
+             switchOutPlayButton();
            } else {
               console.debug('no winner in ANIMATE');
               enableButtons();
@@ -266,6 +284,7 @@ module game {
              if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
                console.debug('winner in ANIMATE');
                disableButtons();
+               switchOutPlayButton();
              } else {
                 console.debug('no winner in ANIMATE');
                 enableButtons();
@@ -283,13 +302,27 @@ module game {
     animate();
   }
 
+  function switchOutPlayButton() {
+    let playBtn = angular.element(document.querySelector('.play-btn__icon'));
+    if (playBtn) {
+      console.debug('switching out play button');
+      playBtn.removeClass('play-btn__icon');
+      playBtn.removeClass('fa-play');
+      playBtn.addClass('fa-times');
+      playBtn.addClass('disabledX');
+    }
+    $rootScope.$apply();
+  }
+
   export function disableButtons() {
     let playBtn = document.querySelector('.play-btn');
-    playBtn.disabled = true;
-    shouldBeDisabled = true;
-    let myEl = angular.element(document.querySelector('.canvas'));
-    myEl.addClass('noPointer');
-    $rootScope.$apply(); //repaint the page
+    if (playBtn) {
+      playBtn.disabled = true;
+      shouldBeDisabled = true;
+      let myEl = angular.element(document.querySelector('.canvas'));
+      myEl.addClass('noPointer');
+      $rootScope.$apply(); //repaint the page
+    }
   }
 
   export function enableButtons() {

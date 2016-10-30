@@ -238,7 +238,6 @@ module gameLogic {
 
     log.info('sequence after copying');
     log.info(sequence2AfterMove);
-    // let winner = getWinner(sequence2AfterMove, turnIndexBeforeMove);
 
     stateBeforeMove.playerSequence.push(color);
     sequence2AfterMove.push(color);
