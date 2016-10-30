@@ -50,7 +50,6 @@ body {
   cursor: pointer;
   outline: none;
   transition: opacity 150ms cubic-bezier(.4, 0, .2, 1);
-  will-change: opacity;
   position: relative;
 }
 
@@ -219,6 +218,11 @@ body {
 /*computer pointing animation*/
 
 @keyframes ghostPoint {
+  from {
+    opacity: 1;
+    transform: scale(0);
+  }
+
   40%, 100% {
     opacity: 0;
     transform: scale(1);
@@ -229,17 +233,20 @@ body {
   width: 40px;
   height: 40px;
   box-sizing: border-box;
-  border: 2px solid white;
+  border: 2px solid black;
   border-radius: 50%;
-  transition: opacity 120ms ease, transform 120ms ease;
   opacity: 1;
   transform: scale(0);
   position: absolute;
   left: calc(50% - 20px);
   top: calc(50% - 20px);
+  z-index: 2;
 }
 
 
-.animating {
+.animating #greenRing,
+.animating #redRing,
+.animating #blueRing,
+.animating #yellowRing {
   animation: ghostPoint 1000ms ease-out;
 }

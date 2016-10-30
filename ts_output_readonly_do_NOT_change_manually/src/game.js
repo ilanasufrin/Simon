@@ -224,12 +224,12 @@ var game;
                         console.debug('in the callback');
                         setTimeout(function () {
                             animateSequence(state, false, undefined);
-                        }, 3000);
+                        }, 1000);
                     }
                 }
                 else {
                     console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]));
-                    pickElement(state.expectedSequence[i]);
+                    pickElement(state.expectedSequence[i], true);
                     i++;
                 }
             };
@@ -249,7 +249,7 @@ var game;
                 }
                 else {
                     console.log('computer SEQUENCE is ' + (state.playerSequence[i]));
-                    pickElement(state.playerSequence[i]);
+                    pickElement(state.playerSequence[i], false);
                     i++;
                 }
             };
@@ -276,31 +276,35 @@ var game;
         $rootScope.$apply(); //repaint the page
     }
     game.enableButtons = enableButtons;
-    function pickElement(el) {
+    function pickElement(el, human) {
         switch (el) {
             case 0:
-                handleAnimationTiming('.green');
+                handleAnimationTiming('.green', human);
                 break;
             case 1:
-                handleAnimationTiming('.red');
+                handleAnimationTiming('.red', human);
                 break;
             case 2:
-                handleAnimationTiming('.yellow');
+                handleAnimationTiming('.yellow', human);
                 break;
             case 3:
-                handleAnimationTiming('.blue');
+                handleAnimationTiming('.blue', human);
                 break;
             default:
                 console.error('unrecognized element ', el);
         }
     }
-    function handleAnimationTiming(el) {
+    function handleAnimationTiming(el, human) {
         var myEl = angular.element(document.querySelector(el));
         myEl.addClass('highlighted');
-        var ring = document.getElementById(el.substring(1) + 'Ring');
-        ring.classList.remove('animating');
-        ring.offsetWidth;
-        ring.classList.add('animating');
+        if (!human) {
+            //if it's a computer move, animate the ghost pointers
+            // console.debug(el.substring(1) + 'Ring');
+            // const ring = document.getElementById(el.substring(1) + 'Ring');
+            myEl.removeClass('animating');
+            myEl[0].offsetWidth;
+            myEl.addClass('animating');
+        }
         setTimeout(function () {
             myEl.addClass('unHighlighted');
             myEl.removeClass('highlighted');
