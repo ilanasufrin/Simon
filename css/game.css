@@ -51,7 +51,7 @@ body {
   outline: none;
   transition: opacity 150ms cubic-bezier(.4, 0, .2, 1);
   will-change: opacity;
-
+  position: relative;
 }
 
 .noPointer {
@@ -214,4 +214,32 @@ body {
 
 .play-btn--playing::after {
   animation: play 1000ms cubic-bezier(0, 0, .2, 1) infinite;
+}
+
+/*computer pointing animation*/
+
+@keyframes ghostPoint {
+  40%, 100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+#greenRing, #redRing, #blueRing, #yellowRing {
+  width: 40px;
+  height: 40px;
+  box-sizing: border-box;
+  border: 2px solid white;
+  border-radius: 50%;
+  transition: opacity 120ms ease, transform 120ms ease;
+  opacity: 1;
+  transform: scale(0);
+  position: absolute;
+  left: calc(50% - 20px);
+  top: calc(50% - 20px);
+}
+
+
+.animating {
+  animation: ghostPoint 1000ms ease-out;
 }

@@ -192,28 +192,38 @@ var game;
             // because if we call aiService now
             // then the animation will be paused until the javascript finishes.
             game.animationEndedTimeout = $timeout(animationEndedCallback, 500);
+            if (params.move.turnIndexAfterMove === -1) {
+                console.debug('we know the game has been lost');
+                //the game has been lost so all buttons should be disabled
+                disableButtons();
+            }
         }
+        //if the game is over, disable the buttons for good
+        console.debug('params ', params);
     }
     game.updateUI = updateUI;
     function animateSequence(state, human, shouldPlayComputer) {
         var playBtn = document.querySelector('.play-btn');
         var animationIntervalId = 0;
-        game.shouldBeDisabled = true; //disable the button
-        var myEl = angular.element(document.querySelector('.canvas')); //disable the colors
-        myEl.addClass('noPointer');
+        disableButtons();
         var i = 0;
+        var animate;
         if (human) {
-            var animate = function () {
+            animate = function () {
                 if (i === state.expectedSequence.length) {
                     clearInterval(animationIntervalId);
-                    game.shouldBeDisabled = false; //re-enable the button
-                    playBtn.disabled = false;
-                    myEl.removeClass('noPointer'); //re-enable the colors
-                    $rootScope.$apply(); //repaint the page
+                    if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
+                        console.debug('winner in ANIMATE');
+                        disableButtons();
+                    }
+                    else {
+                        console.debug('no winner in ANIMATE');
+                        enableButtons();
+                    }
                     if (typeof shouldPlayComputer !== "undefined") {
                         console.debug('in the callback');
                         setTimeout(function () {
-                            animateSequence(state, false);
+                            animateSequence(state, false, undefined);
                         }, 3000);
                     }
                 }
@@ -225,13 +235,17 @@ var game;
             };
         }
         else {
-            var animate = function () {
+            animate = function () {
                 if (i === state.playerSequence.length) {
                     clearInterval(animationIntervalId);
-                    game.shouldBeDisabled = false; //re-enable the button
-                    playBtn.disabled = false;
-                    myEl.removeClass('noPointer'); //re-enable the colors
-                    $rootScope.$apply(); //repaint the page
+                    if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
+                        console.debug('winner in ANIMATE');
+                        disableButtons();
+                    }
+                    else {
+                        console.debug('no winner in ANIMATE');
+                        enableButtons();
+                    }
                 }
                 else {
                     console.log('computer SEQUENCE is ' + (state.playerSequence[i]));
@@ -244,6 +258,24 @@ var game;
         animate();
     }
     game.animateSequence = animateSequence;
+    function disableButtons() {
+        var playBtn = document.querySelector('.play-btn');
+        playBtn.disabled = true;
+        game.shouldBeDisabled = true;
+        var myEl = angular.element(document.querySelector('.canvas'));
+        myEl.addClass('noPointer');
+        $rootScope.$apply(); //repaint the page
+    }
+    game.disableButtons = disableButtons;
+    function enableButtons() {
+        var playBtn = document.querySelector('.play-btn');
+        playBtn.disabled = false;
+        game.shouldBeDisabled = false;
+        var myEl = angular.element(document.querySelector('.canvas'));
+        myEl.removeClass('noPointer');
+        $rootScope.$apply(); //repaint the page
+    }
+    game.enableButtons = enableButtons;
     function pickElement(el) {
         switch (el) {
             case 0:
@@ -265,6 +297,10 @@ var game;
     function handleAnimationTiming(el) {
         var myEl = angular.element(document.querySelector(el));
         myEl.addClass('highlighted');
+        var ring = document.getElementById(el.substring(1) + 'Ring');
+        ring.classList.remove('animating');
+        ring.offsetWidth;
+        ring.classList.add('animating');
         setTimeout(function () {
             myEl.addClass('unHighlighted');
             myEl.removeClass('highlighted');
