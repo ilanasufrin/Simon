@@ -355,7 +355,7 @@ module game {
     }
   }
 
-  function playSound(el: num) {
+  function playSound(el: number) {
     let audio = document.getElementById('simonSound' + el);
     audio.play();
   }
