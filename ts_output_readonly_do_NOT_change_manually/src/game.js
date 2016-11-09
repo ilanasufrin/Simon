@@ -122,6 +122,10 @@ var game;
                     }
                 }
                 else {
+                    if (state.playerSequence[i] === null) {
+                        console.log('this is the mess up');
+                        return;
+                    }
                     console.log('computer SEQUENCE is ' + (state.playerSequence[i]));
                     pickElement(state.playerSequence[i], false);
                     i++;
@@ -184,7 +188,9 @@ var game;
     }
     function playSound(el) {
         var audio = document.getElementById('simonSound' + el);
-        audio.play();
+        if (audio) {
+            audio.play();
+        }
     }
     function handleAnimationTiming(el, human) {
         var myEl = angular.element(document.querySelector(el));
@@ -230,6 +236,13 @@ var game;
             return;
         }
         game.didMakeMove = true;
+        //HACK
+        if (!move || !game.currentUpdateUI.move) {
+            var num = Math.floor(Math.random() * 4);
+            move.stateAfterMove.delta = num;
+            move.stateAfterMove.playerSequence.push(num);
+        }
+        //end hack
         moveService.makeMove(move);
     }
     function isFirstMove() {

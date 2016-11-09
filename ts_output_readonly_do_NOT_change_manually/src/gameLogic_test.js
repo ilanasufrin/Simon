@@ -201,11 +201,12 @@ describe('Simon gameLogic', function () {
     });
     describe('addToExpectedSequence', function () {
         var currentState;
+        var delta;
         it('adds one to color to the sequence', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             var lengthBefore = currentState.expectedSequence.length;
             gameLogic.addToExpectedSequence(currentState);
@@ -215,11 +216,12 @@ describe('Simon gameLogic', function () {
     });
     describe('checkSequenceMatchesExpected', function () {
         var currentState;
+        var delta;
         it('returns true when the player sequence is empty', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
         });
@@ -227,7 +229,7 @@ describe('Simon gameLogic', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [3],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
         });
@@ -235,7 +237,7 @@ describe('Simon gameLogic', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [1],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(false);
         });
@@ -243,11 +245,12 @@ describe('Simon gameLogic', function () {
     describe('getWinner', function () {
         var currentState;
         var turnIndex;
+        var delta;
         it('returns -1 if nobody has lost yet', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             turnIndex = 1;
             expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(-1);
@@ -256,7 +259,7 @@ describe('Simon gameLogic', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [1, 1],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             turnIndex = 0;
             expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(1);
@@ -265,11 +268,36 @@ describe('Simon gameLogic', function () {
             currentState = {
                 expectedSequence: [3, 0],
                 playerSequence: [1, 1],
-                delta: jasmine.any(Number)
+                delta: delta
             };
             turnIndex = 1;
-            expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(1);
+            expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(0);
         });
+    });
+    describe('createMove', function () {
+        var stateBeforeMove;
+        var color;
+        var turnIndexBeforeMove;
+        // it('adds one to color to the sequence', function() {
+        //   stateBeforeMove = {
+        //     expectedSequence: [3, 0],
+        //     playerSequence: [],
+        //     delta: jasmine.any(Number)
+        //   }
+        //   color: 3;
+        //   turnIndexBeforeMove: 0;
+        //   // expect(currentState.expectedSequence.length).toEqual(3);
+        // });
+        //  it('calls getInitialState if stateBeforeMove is falsy', function() {
+        //   spyOn(gameLogic, 'getInitialState');
+        //   console.debug('!!!', gameLogic.getInitialState);
+        //   console.debug('!!!', gameLogic);
+        //   stateBeforeMove = undefined;
+        //   color: 3;
+        //   turnIndexBeforeMove: 0;
+        //   gameLogic.createMove(undefined, color, turnIndexBeforeMove);
+        //   expect(gameLogic.getInitialState).toHaveBeenCalled();
+        // });
     });
 });
 //# sourceMappingURL=gameLogic_test.js.map

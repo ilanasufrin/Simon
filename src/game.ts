@@ -190,7 +190,7 @@ module game {
     moveService.setGame({
       minNumberOfPlayers: 2,
       maxNumberOfPlayers: 2,
-      checkMoveOk: gameLogic.checkMoveOk,
+      checkMoveOk: gameLogic.checkMoveOk, //this is only here because the turnBasedService complains otherwise
       updateUI: updateUI,
       gotMessageFromPlatform: null,
       animateSequence: animateSequence
@@ -292,6 +292,10 @@ module game {
              }
         }
         else {
+            if (state.playerSequence[i] === null) {
+              console.log('this is the mess up');
+              return;
+            }
             console.log('computer SEQUENCE is ' + (state.playerSequence[i]) );
             pickElement(state.playerSequence[i], false);
             i++;
@@ -357,7 +361,9 @@ module game {
 
   function playSound(el: number) {
     let audio = document.getElementById('simonSound' + el);
-    audio.play();
+    if (audio) {
+      audio.play();
+    }
   }
 
   function handleAnimationTiming(el: string, human: boolean,) {
@@ -409,6 +415,13 @@ module game {
       return;
     }
     didMakeMove = true;
+    //HACK
+    if (!move || !currentUpdateUI.move) {
+      let num = Math.floor(Math.random()*4);
+      move.stateAfterMove.delta = num;
+      move.stateAfterMove.playerSequence.push(num);
+    }
+    //end hack
     moveService.makeMove(move);
   }
 

@@ -56,7 +56,7 @@ var gameLogic;
     gameLogic.getWinner = getWinner;
     /**
      * Returns the move that should be performed when player
-     * with index turnIndexBeforeMove makes a move to their sequence.
+     * with index turnIndexBeforeMove adds a move to their sequence.
      */
     function createMove(stateBeforeMove, color, turnIndexBeforeMove) {
         if (!stateBeforeMove) {
@@ -117,16 +117,16 @@ var gameLogic;
     function checkMoveOk(stateTransition) {
         // We can assume that turnIndexBeforeMove and stateBeforeMove are legal, and we need
         // to verify that the move is OK.
-        var turnIndexBeforeMove = stateTransition.turnIndexBeforeMove;
-        var stateBeforeMove = stateTransition.stateBeforeMove;
-        var move = stateTransition.move;
-        console.debug('move', move);
-        if (!stateBeforeMove && turnIndexBeforeMove === 0 &&
-            angular.equals(createInitialMove(), move)) {
-            return;
-        }
-        var deltaValue = move.stateAfterMove.delta;
-        console.debug('delta value', deltaValue);
+        // let turnIndexBeforeMove = stateTransition.turnIndexBeforeMove;
+        // let stateBeforeMove: IState = stateTransition.stateBeforeMove;
+        // let move: IMove = stateTransition.move;
+        // console.debug('move', move);
+        // if (!stateBeforeMove && turnIndexBeforeMove === 0 &&
+        //     angular.equals(createInitialMove(), move)) {
+        //   return;
+        // }
+        // let deltaValue: SequenceDelta = move.stateAfterMove.delta;
+        // console.debug('delta value', deltaValue);
         // let row = deltaValue.row;
         // let col = deltaValue.col;
         //idk why this is here yet
