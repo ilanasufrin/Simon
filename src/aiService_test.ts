@@ -1,127 +1,84 @@
-// describe("aiService", function() {
-//   function createStateFromBoard(board: Board): IState {
-//     return {board: board, delta: null};
-//   }
+describe('aiService', function() {
+  describe('chooseFromPossibleMoves', function() {
+    let state: IState;
+    let turnIndexBeforeMove: number;
+    let delta: SequenceDelta = 3;
 
-//   function createComputerMove(board: Board, turnIndex: number, maxDepth: number): IMove {
-//     let move: IMove = {
-//       turnIndexAfterMove: turnIndex,
-//       endMatchScores: null,
-//       stateAfterMove: createStateFromBoard(board),
-//     };
-//     return aiService.createComputerMove(move, {maxDepth: maxDepth});
-//   }
+    it('returns a valid move', function() {
+      state = {
+        expectedSequence: [3, 0],
+        playerSequence: [],
+        delta: delta
+      }
 
-//   it("getPossibleMoves returns exactly one cell", function() {
-//     let board =
-//         [['O', 'O', 'X'],
-//          ['X', 'X', 'O'],
-//          ['O', 'X', '']];
-//     let possibleMoves = aiService.getPossibleMoves(createStateFromBoard(board), 0);
-//     expect(possibleMoves.length).toBe(1);
-//     expect(angular.equals(possibleMoves[0].stateAfterMove.delta, {row: 2, col: 2})).toBe(true);
-//   });
+      turnIndexBeforeMove = 0;
 
-//   it("X finds an immediate winning move", function() {
-//     let move = createComputerMove(
-//         [['', '', 'O'],
-//          ['O', 'X', 'X'],
-//          ['O', 'X', 'O']], 0, 1);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 1})).toBe(true);
-//   });
+      let choice = aiService.chooseFromPossibleMoves(state, turnIndexBeforeMove);
 
-//   it("X finds an immediate winning move in less than a second", function() {
-//     let move = aiService.findComputerMove({
-//       endMatchScores: null,
-//       turnIndexAfterMove: 0,
-//       stateAfterMove: {
-//         board: [['', '', 'O'],
-//                 ['O', 'X', 'X'],
-//                 ['O', 'X', 'O']],
-//         delta: null
-//       }
-//     });
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 1})).toBe(true);
-//   });
+      expect(choice.endMatchScores).toBeDefined();
+      expect(choice.turnIndexAfterMove).toEqual(jasmine.any(Number));
+      expect(choice.stateAfterMove).toBeDefined();
+      expect(choice.stateAfterMove.delta).toEqual(jasmine.any(Number));
+      expect(choice.stateAfterMove.playerSequence).toBeDefined();
+      expect(choice.stateAfterMove.expectedSequence).toBeDefined();
+    });
+  });
 
-//   it("O finds an immediate winning move", function() {
-//     let move = createComputerMove(
-//         [['', '', 'O'],
-//          ['O', 'X', 'X'],
-//          ['O', 'X', 'O']], 1, 1);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 0})).toBe(true);
-//   });
+  describe('createComputerMove', function() {
+    let move: IMove;
+    let delta: SequenceDelta = 3;
 
-//   it("X prevents an immediate win", function() {
-//     let move = createComputerMove(
-//         [['X', '', ''],
-//          ['O', 'O', ''],
-//          ['X', '', '']], 0, 2);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 1, col: 2})).toBe(true);
-//   });
+    it('returns a valid move', function() {
+      move = {
+        endMatchScores: [0, 1],
+        turnIndexAfterMove: 1,
+        stateAfterMove: {
+          expectedSequence: [3, 0],
+          playerSequence: [],
+          delta: delta
+        }
+      }
 
-//   it("O prevents an immediate win", function() {
-//     let move = createComputerMove(
-//         [['X', 'X', ''],
-//          ['O', '', ''],
-//          ['', '', '']], 1, 2);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 2})).toBe(true);
-//   });
+        let compMove = aiService.createComputerMove(move);
+        expect(move).toEqual(
+        {
+          endMatchScores: [0, 1],
+          turnIndexAfterMove: 1,
+          stateAfterMove: {
+            expectedSequence: [3, 0],
+            playerSequence: [ jasmine.any(Number) ],
+            delta: delta
+          }
+      });
+    });
+  });
 
-//   it("O prevents another immediate win", function() {
-//     let move = createComputerMove(
-//         [['X', 'O', ''],
-//          ['X', 'O', ''],
-//          ['', 'X', '']], 1, 2);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 2, col: 0})).toBe(true);
-//   });
+  describe('findComputerMove', function() {
+    let move: IMove;
+    let delta: SequenceDelta = 3;
 
-//   it("X finds a winning move that will lead to winning in 2 steps", function() {
-//     let move = createComputerMove(
-//         [['X', '', ''],
-//          ['O', 'X', ''],
-//          ['', '', 'O']], 0, 3);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 1})).toBe(true);
-//   });
+    it('returns the move that the computer player should do for the given state in the passed-in move.', function() {
+      move = {
+        endMatchScores: [0, 1],
+        turnIndexAfterMove: 1,
+        stateAfterMove: {
+          expectedSequence: [3, 0],
+          playerSequence: [],
+          delta: delta
+        }
+      }
 
-//   it("O finds a winning move that will lead to winning in 2 steps", function() {
-//     let move = createComputerMove(
-//         [['', 'X', ''],
-//          ['X', 'X', 'O'],
-//          ['', 'O', '']], 1, 3);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 2, col: 2})).toBe(true);
-//   });
-
-//   it("O finds a cool winning move that will lead to winning in 2 steps", function() {
-//     let move = createComputerMove(
-//         [['X', 'O', 'X'],
-//          ['X', '', ''],
-//          ['O', '', '']], 1, 3);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 2, col: 1})).toBe(true);
-//   });
-
-//   it("O finds the wrong move due to small depth", function() {
-//     let move = createComputerMove(
-//         [['X', '', ''],
-//          ['', '', ''],
-//          ['', '', '']], 1, 3);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 1})).toBe(true);
-//   });
-
-//   it("O finds the correct move when depth is big enough", function() {
-//     let move = createComputerMove(
-//         [['X', '', ''],
-//          ['', '', ''],
-//          ['', '', '']], 1, 6);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 1, col: 1})).toBe(true);
-//   });
-
-//   it("X finds a winning move that will lead to winning in 2 steps", function() {
-//     let move = createComputerMove(
-//         [['', '', ''],
-//          ['O', 'X', ''],
-//          ['', '', '']], 0, 5);
-//     expect(angular.equals(move.stateAfterMove.delta, {row: 0, col: 0})).toBe(true);
-//   });
-
-// });
+        let compMove = aiService.findComputerMove(move);
+        expect(move).toEqual(
+        {
+          endMatchScores: [0, 1],
+          turnIndexAfterMove: 1,
+          stateAfterMove: {
+            expectedSequence: [3, 0],
+            playerSequence: [ 3 ],
+            delta: delta
+          }
+      });
+    });
+  });
+});

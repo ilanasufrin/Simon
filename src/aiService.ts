@@ -67,6 +67,7 @@ module aiService {
   export function chooseFromPossibleMoves(state: IState, turnIndexBeforeMove: number): IMove {
     let winningChoice : number = state.delta;
     let possibleMoves: number[] = [];
+    let move;
     for (let i = 0; i <=3; i++) {
       possibleMoves.push(i); //we will choose from all the colors
     }

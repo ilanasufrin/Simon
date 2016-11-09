@@ -62,6 +62,7 @@ var aiService;
     function chooseFromPossibleMoves(state, turnIndexBeforeMove) {
         var winningChoice = state.delta;
         var possibleMoves = [];
+        var move;
         for (var i = 0; i <= 3; i++) {
             possibleMoves.push(i); //we will choose from all the colors
         }
