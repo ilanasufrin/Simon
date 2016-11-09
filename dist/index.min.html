@@ -3,49 +3,59 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>TicTacToe</title>
-  <meta name="description" content="TicTacToe game">
+  <title>Simon</title>
+  <meta name="description" content="Simon game">
   <link rel="shortcut icon" type="image/x-icon" href="data:image/x-icon;,"><!-- Suppress browser request for favicon.ico -->
 
   <!-- To ensure CSS files are downloaded in parallel, always include external CSS before external JavaScript. -->
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="stylesheet" type="text/css" href="css/everything.min.css">
 
   <script src="js/everything.min.js"></script>
 </head>
 <body ng-cloak>
+  <audio id="simonSound0" src="./exports/simonSound0.mp3" preload="auto"></audio>
+  <audio id="simonSound1" src="./exports/simonSound1.mp3" preload="auto"></audio>
+  <audio id="simonSound2" src="./exports/simonSound2.mp3" preload="auto"></audio>
+  <audio id="simonSound3" src="./exports/simonSound3.mp3" preload="auto"></audio>
 <div id="gameArea">
-  <div ng-repeat="row in [0, 1, 2]"
-      style="position:absolute; top:{{row * 33}}%; left:0; width:100%; height:33%;">
-    <div ng-repeat="col in [0, 1, 2]"
-        style="position:absolute; top:0; left:{{col * 33}}%; width:33%; height:100%;"
-        ng-class="{r: col < 2, b: row < 2}"
-        ng-click="game.cellClicked(row, col)"
-        id="{{'e2e_test_div_' + row + 'x' + col}}">
-      <div style="width:100%; height: 100%"
-          ng-class="{slowlyAppear: game.shouldSlowlyAppear(row, col)}"
-          ng-if="game.shouldShowImage(row, col)">
-        <svg ng-if="game.isPieceO(row, col)"
-            id="{{'e2e_test_pieceO_' + row + 'x' + col}}"
-            width="100%" height="100%">
-          <circle cx="50%" cy="50%" r="27%"
-            stroke="blue" stroke-width="5%" fill="white" />
-        </svg>
-        <svg ng-if="game.isPieceX(row, col)"
-            id="{{'e2e_test_pieceX_' + row + 'x' + col}}"
-            width="100%" height="100%">
-          <line x1="25%" y1="25%"
-                x2="75%" y2="75%"
-                stroke="red"
-                stroke-width="5%"/>
-          <line x1="25%" y1="75%"
-                x2="75%" y2="25%"
-                stroke="red"
-                stroke-width="5%"/>
-        </svg>
-      </div>
+
+  <div class="canvas">
+    <button type="button" class="play-btn" aria-label="Play Sequence" ng-disabled="game.shouldBeDisabled" ng-click="game.animateSequence(game.state, true)">
+        <i class="fa fa-play play-btn__icon" title="play" aria-hidden="true"></i>
+    </button>
+    <div style="width:100%; height:50%;" class="row">
+      <div class="pad green" tabindex="0" style="width:50%; height:100%;" ng-click="game.cellClicked(0)"><div id="greenRing"></div> </div>
+      <div class="pad red" tabindex="0" style="width:50%; height:100%;" ng-click="game.cellClicked(1)"><div id="redRing"></div> </div>
+    </div>
+    <div style="width:100%; height:50%;" class="row">
+      <div class="pad yellow" tabindex="0" style="width:50%; height:100%" ng-click="game.cellClicked(2)"><div id="yellowRing"></div> </div>
+      <div class="pad blue" tabindex="0" style="width:50%; height:100%;" ng-click="game.cellClicked(3)"><div id="blueRing"></div> </div>
     </div>
   </div>
 </div>
-
+     <script charset="utf-8">
+      (function() {
+        'use strict';
+        const playBtn = document.querySelector('.play-btn');
+        const initPlaying = function() {
+          playBtn.disabled = true;
+          playBtn.classList.add('play-btn--playing');
+          setTimeout(function() {
+            playBtn.classList.remove('play-btn--playing');
+          }, 1 * 1000);
+        };
+        playBtn.addEventListener('touchend', function(evt) {
+          evt.preventDefault();
+          initPlaying();
+        });
+        playBtn.addEventListener('click', initPlaying);
+        playBtn.addEventListener('keyup', function(evt) {
+          if (evt.key && evt.key === 'Space' || evt.keyCode === 32) {
+            initPlaying();
+          }
+        });
+      })();
+    </script>
 </body>
 </html>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="250px" height="250px" viewBox="0 0 250 250" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.1 (33804) - http://www.bohemiancoding.com/sketch -->
+    <title>RedPad</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M-16,532 C130.907743,532 250,412.907743 250,266 C250,119.092257 130.907743,0 -16,0 C-162.907743,0 -282,119.092257 -282,266 C-282,412.907743 -162.907743,532 -16,532 Z M-16,391 C53.0355937,391 109,335.035594 109,266 C109,196.964406 53.0355937,141 -16,141 C-85.0355937,141 -141,196.964406 -141,266 C-141,335.035594 -85.0355937,391 -16,391 Z" id="path-1"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="Combined-Shape" fill-opacity="0" fill="#D8D8D8" xlink:href="#path-1"></use>
+        <rect id="RedPad" fill="#D9625E" mask="url(#mask-2)" x="0" y="0" width="250" height="250"></rect>
+    </g>
+</svg>

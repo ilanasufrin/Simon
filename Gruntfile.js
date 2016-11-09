@@ -123,6 +123,11 @@ module.exports = function(grunt) {
         src: 'imgs/*.*',
         dest: 'dist/'
       },
+      exports: {
+        expand: true,
+        src: 'exports/*.*',
+        dest: 'dist/'
+      },
       sw: {
         src: 'service-worker.js',
         dest: 'dist/service-worker.js', // // I can also use uglify with a banner (to add a timestamp), but the file is so small it's not worth the complexity.
@@ -188,11 +193,14 @@ module.exports = function(grunt) {
             // Use the same list in service-worker.js !
             'js/everything.min.js',
             'css/everything.min.css',
+            'css/font-awesome.css',
+            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
           ],
           network: [
             'service-worker.js',
             'js/everything.min.js.map',
             'js/everything.js',
+            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
           ],
           timestamp: true
         },

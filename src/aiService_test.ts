@@ -75,7 +75,7 @@ describe('aiService', function() {
           turnIndexAfterMove: 1,
           stateAfterMove: {
             expectedSequence: [3, 0],
-            playerSequence: [ 3 ],
+            playerSequence: [ jasmine.any(Number) ],
             delta: delta
           }
       });

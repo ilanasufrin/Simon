@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="250px" height="250px" viewBox="0 0 250 250" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.1 (33804) - http://www.bohemiancoding.com/sketch -->
+    <title>GreenPad</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <path d="M266,532 C412.907743,532 532,412.907743 532,266 C532,119.092257 412.907743,0 266,0 C119.092257,0 0,119.092257 0,266 C0,412.907743 119.092257,532 266,532 Z M266,391 C335.035594,391 391,335.035594 391,266 C391,196.964406 335.035594,141 266,141 C196.964406,141 141,196.964406 141,266 C141,335.035594 196.964406,391 266,391 Z" id="path-1"></path>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <mask id="mask-2" fill="white">
+            <use xlink:href="#path-1"></use>
+        </mask>
+        <use id="Combined-Shape" fill-opacity="0" fill="#D8D8D8" xlink:href="#path-1"></use>
+        <rect id="GreenPad" fill="#5FD28D" mask="url(#mask-2)" x="0" y="0" width="250" height="250"></rect>
+    </g>
+</svg>

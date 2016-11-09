@@ -32129,115 +32129,114 @@ var gamingPlatform;
 })(gamingPlatform || (gamingPlatform = {}));
 //# sourceMappingURL=angularExceptionHandler.js.map
 ;
+// type Board = string[][];
+// interface BoardDelta {
+//   row: number;
+//   col: number;
+// }
+// interface IState {
+//   board: Board;
+//   delta: BoardDelta;
+// }
 var gameLogic;
 (function (gameLogic) {
-    gameLogic.ROWS = 3;
-    gameLogic.COLS = 3;
-    /** Returns the initial TicTacToe board, which is a ROWSxCOLS matrix containing ''. */
-    function getInitialBoard() {
-        var board = [];
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            board[i] = [];
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                board[i][j] = '';
-            }
-        }
-        return board;
+    /** Returns an initial, empty, sequence for the players and the board. */
+    function getInitialSequence() {
+        var emptySequence = [];
+        return emptySequence;
+    }
+    function getInitialSequencePopulated() {
+        var sequence = [];
+        sequence.push(Math.floor(Math.random() * 4));
+        return sequence;
     }
     function getInitialState() {
-        return { board: getInitialBoard(), delta: null };
+        return { expectedSequence: getInitialSequencePopulated(), playerSequence: getInitialSequence(), delta: null };
     }
     gameLogic.getInitialState = getInitialState;
-    /**
-     * Returns true if the game ended in a tie because there are no empty cells.
-     * E.g., isTie returns true for the following board:
-     *     [['X', 'O', 'X'],
-     *      ['X', 'O', 'O'],
-     *      ['O', 'X', 'X']]
-     */
-    function isTie(board) {
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                if (board[i][j] === '') {
-                    // If there is an empty cell then we do not have a tie.
-                    return false;
-                }
+    function checkSequenceMatchesExpected(currentState) {
+        console.log('checking sequence');
+        console.log(currentState);
+        for (var i = 0; i < currentState.playerSequence.length; i++) {
+            if (currentState.expectedSequence[i] !== currentState.playerSequence[i]) {
+                return false;
             }
         }
-        // No empty cells, so we have a tie!
         return true;
     }
-    /**
-     * Return the winner (either 'X' or 'O') or '' if there is no winner.
-     * The board is a matrix of size 3x3 containing either 'X', 'O', or ''.
-     * E.g., getWinner returns 'X' for the following board:
-     *     [['X', 'O', ''],
-     *      ['X', 'O', ''],
-     *      ['X', '', '']]
-     */
-    function getWinner(board) {
-        var boardString = '';
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                var cell = board[i][j];
-                boardString += cell === '' ? ' ' : cell;
-            }
-        }
-        var win_patterns = [
-            'XXX......',
-            '...XXX...',
-            '......XXX',
-            'X..X..X..',
-            '.X..X..X.',
-            '..X..X..X',
-            'X...X...X',
-            '..X.X.X..'
-        ];
-        for (var _i = 0, win_patterns_1 = win_patterns; _i < win_patterns_1.length; _i++) {
-            var win_pattern = win_patterns_1[_i];
-            var x_regexp = new RegExp(win_pattern);
-            var o_regexp = new RegExp(win_pattern.replace(/X/g, 'O'));
-            if (x_regexp.test(boardString)) {
-                return 'X';
-            }
-            if (o_regexp.test(boardString)) {
-                return 'O';
-            }
-        }
-        return '';
+    gameLogic.checkSequenceMatchesExpected = checkSequenceMatchesExpected;
+    function addToExpectedSequence(currentState) {
+        var newColor = Math.floor(Math.random() * 4);
+        currentState.expectedSequence.push(newColor);
+        console.log('returning new color', newColor);
+        return newColor;
     }
+    gameLogic.addToExpectedSequence = addToExpectedSequence;
+    //if there is newly a loss, return the index of whoever just lost
+    function getWinner(currentState, turnIndexOfMove) {
+        console.log('checking winner');
+        console.log(currentState);
+        if (!checkSequenceMatchesExpected(currentState)) {
+            console.log('there is a winner');
+            console.log('this is the loser', turnIndexOfMove);
+            return 1 - turnIndexOfMove;
+        }
+        console.log('no winner');
+        return -1; //no winner
+    }
+    gameLogic.getWinner = getWinner;
     /**
      * Returns the move that should be performed when player
-     * with index turnIndexBeforeMove makes a move in cell row X col.
+     * with index turnIndexBeforeMove adds a move to their sequence.
      */
-    function createMove(stateBeforeMove, row, col, turnIndexBeforeMove) {
+    function createMove(stateBeforeMove, color, turnIndexBeforeMove) {
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
-        var board = stateBeforeMove.board;
-        if (board[row][col] !== '') {
-            throw new Error("One can only make a move in an empty position!");
-        }
-        if (getWinner(board) !== '' || isTie(board)) {
-            throw new Error("Can only make a move if the game is not over!");
-        }
-        var boardAfterMove = angular.copy(board);
-        boardAfterMove[row][col] = turnIndexBeforeMove === 0 ? 'X' : 'O';
-        var winner = getWinner(boardAfterMove);
+        log.info('state passed into createMove');
+        log.info(stateBeforeMove);
+        var sequence1 = stateBeforeMove.expectedSequence;
+        var sequence2 = stateBeforeMove.playerSequence;
+        var sequence1AfterMove = angular.copy(sequence1);
+        var sequence2AfterMove = angular.copy(sequence2);
+        log.info('sequence after copying');
+        log.info(sequence2AfterMove);
+        stateBeforeMove.playerSequence.push(color);
+        sequence2AfterMove.push(color);
+        var winner = getWinner(stateBeforeMove, turnIndexBeforeMove);
         var endMatchScores;
         var turnIndexAfterMove;
-        if (winner !== '' || isTie(boardAfterMove)) {
+        if (winner !== -1) {
+            log.info('game over');
+            console.debug('the winner is ', winner);
             // Game over.
             turnIndexAfterMove = -1;
-            endMatchScores = winner === 'X' ? [1, 0] : winner === 'O' ? [0, 1] : [0, 0];
+            endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
             // Game continues. Now it's the opponent's turn (the turn switches from 0 to 1 and 1 to 0).
-            turnIndexAfterMove = 1 - turnIndexBeforeMove;
+            log.info('game continues');
+            //clear the player's sequence so we can start the pattern over
+            //but only if the player has submitted enough colors to make a full sequence
+            if (sequence1AfterMove.length === sequence2AfterMove.length) {
+                log.info('submitted a full pattern, clearing');
+                sequence2AfterMove = [];
+                //add a new color for the next round
+                var newColor = addToExpectedSequence(stateBeforeMove);
+                console.log('next color in sequence', newColor);
+                sequence1AfterMove.push(newColor);
+                //switch players, but only once a full turn is completed
+                turnIndexAfterMove = 1 - turnIndexBeforeMove;
+            }
+            else {
+                //keep the same player until a sequence has been completed
+                turnIndexAfterMove = turnIndexBeforeMove;
+            }
             endMatchScores = null;
         }
-        var delta = { row: row, col: col };
-        var stateAfterMove = { delta: delta, board: boardAfterMove };
+        var delta = color;
+        var stateAfterMove = { delta: delta, playerSequence: sequence2AfterMove, expectedSequence: sequence1AfterMove };
+        console.log(stateAfterMove);
         return { endMatchScores: endMatchScores, turnIndexAfterMove: turnIndexAfterMove, stateAfterMove: stateAfterMove };
     }
     gameLogic.createMove = createMove;
@@ -32249,37 +32248,35 @@ var gameLogic;
     function checkMoveOk(stateTransition) {
         // We can assume that turnIndexBeforeMove and stateBeforeMove are legal, and we need
         // to verify that the move is OK.
-        var turnIndexBeforeMove = stateTransition.turnIndexBeforeMove;
-        var stateBeforeMove = stateTransition.stateBeforeMove;
-        var move = stateTransition.move;
-        if (!stateBeforeMove && turnIndexBeforeMove === 0 &&
-            angular.equals(createInitialMove(), move)) {
-            return;
-        }
-        var deltaValue = move.stateAfterMove.delta;
-        var row = deltaValue.row;
-        var col = deltaValue.col;
-        var expectedMove = createMove(stateBeforeMove, row, col, turnIndexBeforeMove);
-        if (!angular.equals(move, expectedMove)) {
-            throw new Error("Expected move=" + angular.toJson(expectedMove, true) +
-                ", but got stateTransition=" + angular.toJson(stateTransition, true));
-        }
+        // let turnIndexBeforeMove = stateTransition.turnIndexBeforeMove;
+        // let stateBeforeMove: IState = stateTransition.stateBeforeMove;
+        // let move: IMove = stateTransition.move;
+        // console.debug('move', move);
+        // if (!stateBeforeMove && turnIndexBeforeMove === 0 &&
+        //     angular.equals(createInitialMove(), move)) {
+        //   return;
+        // }
+        // let deltaValue: SequenceDelta = move.stateAfterMove.delta;
+        // console.debug('delta value', deltaValue);
+        // let row = deltaValue.row;
+        // let col = deltaValue.col;
+        //idk why this is here yet
+        // let expectedMove = createMove(stateBeforeMove, deltaValue, turnIndexBeforeMove);
+        // if (!angular.equals(move, expectedMove)) {
+        //   throw new Error("Expected move=" + angular.toJson(expectedMove, true) +
+        //       ", but got stateTransition=" + angular.toJson(stateTransition, true))
+        // }
     }
     gameLogic.checkMoveOk = checkMoveOk;
-    function forSimpleTestHtml() {
-        var move = gameLogic.createMove(null, 0, 0, 0);
-        log.log("move=", move);
-        var params = {
-            turnIndexBeforeMove: 0,
-            stateBeforeMove: null,
-            move: move,
-            numberOfPlayers: 2 };
-        gameLogic.checkMoveOk(params);
-    }
-    gameLogic.forSimpleTestHtml = forSimpleTestHtml;
 })(gameLogic || (gameLogic = {}));
 //# sourceMappingURL=gameLogic.js.map
 ;
+// interface SupportedLanguages {
+//   en: string, iw: string,
+//   pt: string, zh: string,
+//   el: string, fr: string,
+//   hi: string, es: string,
+// };
 ;
 var game;
 (function (game) {
@@ -32291,10 +32288,12 @@ var game;
     game.didMakeMove = false; // You can only make one move per updateUI
     game.animationEndedTimeout = null;
     game.state = null;
+    game.shouldBeDisabled = true;
     function init() {
         registerServiceWorker();
         translate.setTranslations(getTranslations());
         translate.setLanguage('en');
+        // log.log("Translation of 'GAME_OVER' is " + translate('GAME_OVER'));
         resizeGameAreaService.setWidthToHeight(1);
         moveService.setGame({
             minNumberOfPlayers: 2,
@@ -32302,7 +32301,9 @@ var game;
             checkMoveOk: gameLogic.checkMoveOk,
             updateUI: updateUI,
             gotMessageFromPlatform: null,
+            animateSequence: animateSequence
         });
+        enableButtons();
     }
     game.init = init;
     function registerServiceWorker() {
@@ -32320,7 +32321,7 @@ var game;
         return {};
     }
     function updateUI(params) {
-        log.info("Game got updateUI:", params);
+        log.info("Game got updateUI ILANA:", params);
         game.didMakeMove = false; // Only one move per updateUI
         game.currentUpdateUI = params;
         clearAnimationTimeout();
@@ -32335,9 +32336,154 @@ var game;
             // because if we call aiService now
             // then the animation will be paused until the javascript finishes.
             game.animationEndedTimeout = $timeout(animationEndedCallback, 500);
+            if (params.move.turnIndexAfterMove === -1) {
+                console.debug('we know the game has been lost');
+                //the game has been lost so all buttons should be disabled
+                disableButtons();
+                switchOutPlayButton();
+            }
         }
+        //if the game is over, disable the buttons for good
+        console.debug('params ', params);
     }
     game.updateUI = updateUI;
+    function animateSequence(state, human, shouldPlayComputer) {
+        var playBtn = document.querySelector('.play-btn');
+        var animationIntervalId = 0;
+        disableButtons();
+        var i = 0;
+        var animate;
+        if (human) {
+            animate = function () {
+                if (i === state.expectedSequence.length) {
+                    clearInterval(animationIntervalId);
+                    if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
+                        console.debug('winner in ANIMATE');
+                        disableButtons();
+                        switchOutPlayButton();
+                    }
+                    else {
+                        console.debug('no winner in ANIMATE');
+                        enableButtons();
+                    }
+                    if (typeof shouldPlayComputer !== "undefined") {
+                        console.debug('in the callback');
+                        setTimeout(function () {
+                            animateSequence(state, false, undefined);
+                        }, 1000);
+                    }
+                }
+                else {
+                    console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]));
+                    pickElement(state.expectedSequence[i], true);
+                    i++;
+                }
+            };
+        }
+        else {
+            animate = function () {
+                if (i === state.playerSequence.length) {
+                    clearInterval(animationIntervalId);
+                    if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
+                        console.debug('winner in ANIMATE');
+                        disableButtons();
+                        switchOutPlayButton();
+                    }
+                    else {
+                        console.debug('no winner in ANIMATE');
+                        enableButtons();
+                    }
+                }
+                else {
+                    if (state.playerSequence[i] === null) {
+                        console.log('this is the mess up');
+                        return;
+                    }
+                    console.log('computer SEQUENCE is ' + (state.playerSequence[i]));
+                    pickElement(state.playerSequence[i], false);
+                    i++;
+                }
+            };
+        }
+        animationIntervalId = setInterval(animate, 2000);
+        animate();
+    }
+    game.animateSequence = animateSequence;
+    function switchOutPlayButton() {
+        var playBtn = angular.element(document.querySelector('.play-btn__icon'));
+        if (playBtn) {
+            console.debug('switching out play button');
+            playBtn.removeClass('play-btn__icon');
+            playBtn.removeClass('fa-play');
+            playBtn.addClass('fa-times');
+            playBtn.addClass('disabledX');
+        }
+        $rootScope.$apply();
+    }
+    function disableButtons() {
+        var playBtn = document.querySelector('.play-btn');
+        if (playBtn) {
+            playBtn.disabled = true;
+            game.shouldBeDisabled = true;
+            var myEl = angular.element(document.querySelector('.canvas'));
+            myEl.addClass('noPointer');
+            $rootScope.$apply(); //repaint the page
+        }
+    }
+    game.disableButtons = disableButtons;
+    function enableButtons() {
+        var playBtn = document.querySelector('.play-btn');
+        playBtn.disabled = false;
+        game.shouldBeDisabled = false;
+        var myEl = angular.element(document.querySelector('.canvas'));
+        myEl.removeClass('noPointer');
+        $rootScope.$apply(); //repaint the page
+    }
+    game.enableButtons = enableButtons;
+    function pickElement(el, human) {
+        playSound(el);
+        switch (el) {
+            case 0:
+                handleAnimationTiming('.green', human);
+                break;
+            case 1:
+                handleAnimationTiming('.red', human);
+                break;
+            case 2:
+                handleAnimationTiming('.yellow', human);
+                break;
+            case 3:
+                handleAnimationTiming('.blue', human);
+                break;
+            default:
+                console.error('unrecognized element ', el);
+        }
+    }
+    function playSound(el) {
+        var audio = document.getElementById('simonSound' + el);
+        if (audio) {
+            audio.play();
+        }
+    }
+    function handleAnimationTiming(el, human) {
+        var myEl = angular.element(document.querySelector(el));
+        myEl.addClass('highlighted');
+        if (!human) {
+            //if it's a computer move, animate the ghost pointers
+            // console.debug(el.substring(1) + 'Ring');
+            // const ring = document.getElementById(el.substring(1) + 'Ring');
+            myEl.removeClass('animating');
+            myEl[0].offsetWidth;
+            myEl.addClass('animating');
+        }
+        setTimeout(function () {
+            myEl.addClass('unHighlighted');
+            myEl.removeClass('highlighted');
+        }, 1000);
+        setTimeout(function () {
+            myEl.removeClass('unHighlighted');
+        }, 1500);
+    }
     function animationEndedCallback() {
         log.info("Animation ended");
         maybeSendComputerMove();
@@ -32351,15 +32497,25 @@ var game;
     function maybeSendComputerMove() {
         if (!isComputerTurn())
             return;
+        console.debug('currentUpdateUI.move', game.currentUpdateUI.move);
         var move = aiService.findComputerMove(game.currentUpdateUI.move);
         log.info("Computer move: ", move);
+        animateSequence(game.state, true, true);
         makeMove(move);
     }
     function makeMove(move) {
+        console.log('trying to make a move', move);
         if (game.didMakeMove) {
             return;
         }
         game.didMakeMove = true;
+        //HACK
+        if (!move || !game.currentUpdateUI.move) {
+            var num = Math.floor(Math.random() * 4);
+            move.stateAfterMove.delta = num;
+            move.stateAfterMove.playerSequence.push(num);
+        }
+        //end hack
         moveService.makeMove(move);
     }
     function isFirstMove() {
@@ -32382,8 +32538,8 @@ var game;
             game.currentUpdateUI.move.turnIndexAfterMove >= 0 &&
             game.currentUpdateUI.yourPlayerIndex === game.currentUpdateUI.move.turnIndexAfterMove; // it's my turn
     }
-    function cellClicked(row, col) {
-        log.info("Clicked on cell:", row, col);
+    function cellClicked(color) {
+        log.info("Clicked on color:", color);
         if (!isHumanTurn())
             return;
         if (window.location.search === '?throwException') {
@@ -32391,34 +32547,19 @@ var game;
         }
         var nextMove = null;
         try {
-            nextMove = gameLogic.createMove(game.state, row, col, game.currentUpdateUI.move.turnIndexAfterMove);
+            log.info('state on click', game.state);
+            nextMove = gameLogic.createMove(game.state, color, game.currentUpdateUI.move.turnIndexAfterMove);
         }
         catch (e) {
-            log.info(["Cell is already full in position:", row, col]);
+            log.info(["there was a problem choosing the color:", color]);
             return;
         }
         // Move is legal, make it!
+        log.info('move was legal');
         makeMove(nextMove);
+        playSound(color);
     }
     game.cellClicked = cellClicked;
-    function shouldShowImage(row, col) {
-        var cell = game.state.board[row][col];
-        return cell !== "";
-    }
-    game.shouldShowImage = shouldShowImage;
-    function isPieceX(row, col) {
-        return game.state.board[row][col] === 'X';
-    }
-    game.isPieceX = isPieceX;
-    function isPieceO(row, col) {
-        return game.state.board[row][col] === 'O';
-    }
-    game.isPieceO = isPieceO;
-    function shouldSlowlyAppear(row, col) {
-        return game.state.delta &&
-            game.state.delta.row === row && game.state.delta.col === col;
-    }
-    game.shouldSlowlyAppear = shouldSlowlyAppear;
 })(game || (game = {}));
 angular.module('myApp', ['gameServices'])
     .run(function () {
@@ -32427,6 +32568,54 @@ angular.module('myApp', ['gameServices'])
 });
 //# sourceMappingURL=game.js.map
 ;
+// module aiService {
+//   /** Returns the move that the computer player should do for the given state in move. */
+//   export function findComputerMove(move: IMove): IMove {
+//     return createComputerMove(move,
+//         // at most 1 second for the AI to choose a move (but might be much quicker)
+//         {millisecondsLimit: 1000});
+//   }
+//   /**
+//    * Returns all the possible moves for the given state and turnIndexBeforeMove.
+//    * Returns an empty array if the game is over.
+//    */
+//   export function getPossibleMoves(state: IState, turnIndexBeforeMove: number): IMove[] {
+//     let possibleMoves: IMove[] = [];
+//     for (let i = 0; i < gameLogic.ROWS; i++) {
+//       for (let j = 0; j < gameLogic.COLS; j++) {
+//         try {
+//           possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
+//         } catch (e) {
+//           // The cell in that position was full.
+//         }
+//       }
+//     }
+//     return possibleMoves;
+//   }
+//   *
+//    * Returns the move that the computer player should do for the given state.
+//    * alphaBetaLimits is an object that sets a limit on the alpha-beta search,
+//    * and it has either a millisecondsLimit or maxDepth field:
+//    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
+//   export function createComputerMove(
+//       move: IMove, alphaBetaLimits: IAlphaBetaLimits): IMove {
+//     // We use alpha-beta search, where the search states are TicTacToe moves.
+//     return alphaBetaService.alphaBetaDecision(
+//         move, move.turnIndexAfterMove, getNextStates, getStateScoreForIndex0, null, alphaBetaLimits);
+//   }
+//   function getStateScoreForIndex0(move: IMove, playerIndex: number): number {
+//     let endMatchScores = move.endMatchScores;
+//     if (endMatchScores) {
+//       return endMatchScores[0] > endMatchScores[1] ? Number.POSITIVE_INFINITY
+//           : endMatchScores[0] < endMatchScores[1] ? Number.NEGATIVE_INFINITY
+//           : 0;
+//     }
+//     return 0;
+//   }
+//   function getNextStates(move: IMove, playerIndex: number): IMove[] {
+//     return getPossibleMoves(move.stateAfterMove, playerIndex);
+//   }
+// }
 var aiService;
 (function (aiService) {
     /** Returns the move that the computer player should do for the given state in move. */
@@ -32440,42 +32629,35 @@ var aiService;
      * Returns all the possible moves for the given state and turnIndexBeforeMove.
      * Returns an empty array if the game is over.
      */
-    function getPossibleMoves(state, turnIndexBeforeMove) {
+    function chooseFromPossibleMoves(state, turnIndexBeforeMove) {
+        var winningChoice = state.delta;
         var possibleMoves = [];
-        for (var i = 0; i < gameLogic.ROWS; i++) {
-            for (var j = 0; j < gameLogic.COLS; j++) {
-                try {
-                    possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
-                }
-                catch (e) {
-                }
-            }
+        var move;
+        for (var i = 0; i <= 3; i++) {
+            possibleMoves.push(i); //we will choose from all the colors
         }
-        return possibleMoves;
+        possibleMoves.push(winningChoice);
+        possibleMoves.push(winningChoice);
+        possibleMoves.push(winningChoice);
+        possibleMoves.push(winningChoice); //give a greater chance that we will choose the right color
+        var choice = (Math.floor(Math.random() * possibleMoves.length));
+        var num = possibleMoves[choice];
+        console.debug('num ', num);
+        move = gameLogic.createMove(state, num, turnIndexBeforeMove);
+        console.debug('choosing', move);
+        return move;
     }
-    aiService.getPossibleMoves = getPossibleMoves;
+    aiService.chooseFromPossibleMoves = chooseFromPossibleMoves;
     /**
      * Returns the move that the computer player should do for the given state.
      * alphaBetaLimits is an object that sets a limit on the alpha-beta search,
      * and it has either a millisecondsLimit or maxDepth field:
      * millisecondsLimit is a time limit, and maxDepth is a depth limit.
      */
-    function createComputerMove(move, alphaBetaLimits) {
-        // We use alpha-beta search, where the search states are TicTacToe moves.
-        return alphaBetaService.alphaBetaDecision(move, move.turnIndexAfterMove, getNextStates, getStateScoreForIndex0, null, alphaBetaLimits);
+    function createComputerMove(move) {
+        console.debug('move!', move);
+        return (move, move.turnIndexAfterMove, chooseFromPossibleMoves(move.stateAfterMove, move.turnIndexAfterMove));
     }
     aiService.createComputerMove = createComputerMove;
-    function getStateScoreForIndex0(move, playerIndex) {
-        var endMatchScores = move.endMatchScores;
-        if (endMatchScores) {
-            return endMatchScores[0] > endMatchScores[1] ? Number.POSITIVE_INFINITY
-                : endMatchScores[0] < endMatchScores[1] ? Number.NEGATIVE_INFINITY
-                    : 0;
-        }
-        return 0;
-    }
-    function getNextStates(move, playerIndex) {
-        return getPossibleMoves(move.stateAfterMove, playerIndex);
-    }
 })(aiService || (aiService = {}));
 //# sourceMappingURL=aiService.js.map
