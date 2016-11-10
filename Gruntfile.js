@@ -193,7 +193,6 @@ module.exports = function(grunt) {
             // Use the same list in service-worker.js !
             'js/everything.min.js',
             'css/everything.min.css',
-            'css/font-awesome.css',
             'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css'
           ],
           network: [

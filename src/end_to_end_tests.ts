@@ -114,7 +114,7 @@ describe('TicTacToe', function() {
   }
 
   it('should have a title', function () {
-    expect(browser.getTitle()).toEqual('TicTacToe');
+    expect(browser.getTitle()).toEqual('Simon');
   });
 
   it('should have an empty TicTacToe board', function () {
