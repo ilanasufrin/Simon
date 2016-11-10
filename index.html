@@ -57,9 +57,16 @@
         };
         playBtn.addEventListener('touchend', function(evt) {
           evt.preventDefault();
-          initPlaying();
+          const click = new MouseEvent('click', {
+            view: window,
+            bubbles: true,
+            cancelable: true
+          });
+          playBtn.dispatchEvent(click);
         });
-        playBtn.addEventListener('click', initPlaying);
+        playBtn.addEventListener('click', function(evt) {
+          initPlaying();
+        })
         playBtn.addEventListener('keyup', function(evt) {
           if (evt.key && evt.key === 'Space' || evt.keyCode === 32) {
             initPlaying();

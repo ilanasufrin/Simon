@@ -1,5 +1,5 @@
 // This file has end-to-end tests using protractor, see:
-// https://github.com/angular/protractor/blob/master/docs/toc.md 
+// https://github.com/angular/protractor/blob/master/docs/toc.md
 declare var require: (module: string) => any;
 function expectEmptyBrowserLogs() {
   browser.manage().logs().get('browser').then(function(browserLog) {
@@ -32,8 +32,8 @@ module JasmineOverrides {
   let originalAddExpectationResult = jasmineSpec.prototype.addExpectationResult;
   jasmineSpec.prototype.addExpectationResult = function () {
     if (!arguments[0]) {
-      console.error("\n\nFailure in test:\n" + 
-          arguments[1].message + "\n" + 
+      console.error("\n\nFailure in test:\n" +
+          arguments[1].message + "\n" +
           (arguments[1].error ? " stacktrace=\n\n" + arguments[1].error.stack : '') +
           "\n\n\n" +
           " Failure arguments=" + JSON.stringify(arguments));
@@ -51,19 +51,19 @@ module JasmineOverrides {
 describe('TicTacToe', function() {
   browser.driver.manage().window().setSize(400, 600);
   browser.driver.manage().window().setPosition(10, 10);
-  
+
   let checkNoErrorInLogsIntervalId: number = null;
   beforeEach(()=>{
     console.log('\n\n\nRunning test: ', lastTest.fullName);
-    checkNoErrorInLogsIntervalId = setInterval(expectEmptyBrowserLogs, 100);
+    // checkNoErrorInLogsIntervalId = setInterval(expectEmptyBrowserLogs, 100);
     getPage('');
   });
   afterEach(()=>{
     expectEmptyBrowserLogs();
     clearInterval(checkNoErrorInLogsIntervalId);
   });
-  
-  
+
+
   function safePromise<T>(p: webdriver.promise.Promise<T>): webdriver.promise.Promise<T> {
     return p.then((x:any)=>x, ()=>false);
   }
@@ -72,10 +72,10 @@ describe('TicTacToe', function() {
   }
   function waitForElementToDisappear(elem: protractor.ElementFinder) {
     waitUntil(()=>safePromise(elem.isPresent()).then(
-        (isPresent)=>isPresent ? 
+        (isPresent)=>isPresent ?
           safePromise(elem.isDisplayed()).then((isDisplayed)=>!isDisplayed) : !isPresent));
   }
-  
+
   function getPage(page: string) {
     browser.get('/dist/index.min.html?' + page);
   }

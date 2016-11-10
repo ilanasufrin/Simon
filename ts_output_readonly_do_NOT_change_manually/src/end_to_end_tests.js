@@ -56,7 +56,7 @@ describe('TicTacToe', function () {
     var checkNoErrorInLogsIntervalId = null;
     beforeEach(function () {
         console.log('\n\n\nRunning test: ', lastTest.fullName);
-        checkNoErrorInLogsIntervalId = setInterval(expectEmptyBrowserLogs, 100);
+        // checkNoErrorInLogsIntervalId = setInterval(expectEmptyBrowserLogs, 100);
         getPage('');
     });
     afterEach(function () {
