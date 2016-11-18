@@ -3,10 +3,11 @@ html, body {
   padding: 0;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  position: fixed!important;
 }
+
+
 /* To prevent long-press that will bring up copy-paste dialog. */
+
 * {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -16,26 +17,38 @@ html, body {
   -moz-touch-callout: none;
   -ms-touch-callout: none;
   touch-callout: none;
-  outline: 0; /* To prevent blue-box outline after click: http://stackoverflow.com/questions/21719306/getting-rid-of-a-blue-box-around-button-when-pressed */
+  outline: 0;
+  /* To prevent blue-box outline after click: http://stackoverflow.com/questions/21719306/getting-rid-of-a-blue-box-around-button-when-pressed */
 }
+
 textarea, input {
   -webkit-user-select: text !important;
   -moz-user-select: text !important;
   -ms-user-select: text !important;
   user-select: text !important;
 }
+
 [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
   display: none !important;
 }
+
 body {
   background-color: #383f49;
 }
 
-.canvas {
-  width: 100%;
+#gameArea {
   height: 100%;
   display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.canvas {
+  display: flex;
   flex-direction: column;
+  position: relative;
+  width: 100%;
+  height: 100%;
 }
 
 .row {
@@ -43,14 +56,27 @@ body {
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 50%;
 }
 
 .pad {
+  background-size: cover;
   opacity: .5;
   cursor: pointer;
   outline: none;
   transition: opacity 150ms cubic-bezier(.4, 0, .2, 1);
   position: relative;
+  width: calc(50% - 32px);
+  height: calc(100% - 32px);
+  margin: auto;
+}
+
+@media (max-width: 600px) {
+  .pad {
+    width: calc(50% - 16px);
+    height: calc(100% - 16px);
+  }
 }
 
 .noPointer {
@@ -67,33 +93,32 @@ body {
 
 .green {
   background-image: url(../exports/GreenPad.svg);
-  background-size: cover;
 }
+
 .red {
   background-image: url(../exports/RedPad.svg);
-  background-size: cover;
 }
+
 .yellow {
   background-image: url(../exports/YellowPad.svg);
-  background-size: cover;
 }
+
 .blue {
   background-image: url(../exports/BluePad.svg);
-  background-size: cover;
 }
 
 .highlighted {
-    opacity: 1;
-    transition: opacity .5s ease-in-out;
-    -moz-transition: opacity .5s ease-in-out;
-    -webkit-transition: opacity .5s ease-in-out;
+  opacity: 1;
+  transition: opacity .5s ease-in-out;
+  -moz-transition: opacity .5s ease-in-out;
+  -webkit-transition: opacity .5s ease-in-out;
 }
 
 .unHighlighted {
-    opacity: .5;
-    transition: opacity .5s ease-in-out;
-    -moz-transition: opacity .5s ease-in-out;
-    -webkit-transition: opacity .5s ease-in-out;
+  opacity: .5;
+  transition: opacity .5s ease-in-out;
+  -moz-transition: opacity .5s ease-in-out;
+  -webkit-transition: opacity .5s ease-in-out;
 }
 
 .slowlyAppear {
@@ -101,8 +126,12 @@ body {
 }
 
 @keyframes slowlyAppear {
-  from {opacity: 0.1;}
-  to {opacity: 1;}
+  from {
+    opacity: 0.1;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .play-btn-disabled-styles {
@@ -121,42 +150,31 @@ body {
   -webkit-appearance: none;
   -moz-appearance: none;
   -webkit-tap-highlight: rgba(0, 0, 0, 0);
-
   /* Custom Styles */
   position: absolute;
-  left: calc(50% - 27px);
-  top: calc(50% - 27px);
+  left: calc(50% - 30px);
+  top: calc(50% - 30px);
   width: 60px;
   height: 60px;
   line-height: 60px;
   font-size: 60px;
   z-index: 10;
-
   display: flex;
   align-items: center;
   justify-content: flex-end;
-
   color: white;
-  text-shadow: 0px 2px 4px rgba(255, 255, 255, .3),
-               0px 4px 5px rgba(255, 255, 255, .21),
-               0px 1px 10px rgba(255, 255, 255, .18);
+  text-shadow: 0px 2px 4px rgba(255, 255, 255, .3), 0px 4px 5px rgba(255, 255, 255, .21), 0px 1px 10px rgba(255, 255, 255, .18);
   cursor: pointer;
-
   transition: text-shadow 120ms cubic-bezier(.4, 0, .2, 1);
   will-change: opacity, text-shadow;
 }
 
-.play-btn:hover,
-.play-btn:focus {
-  text-shadow: 0px 5px 5px rgba(255, 255, 255, .3),
-               0px 8px 10px rgba(255, 255, 255, .21),
-               0px 3px 14px rgba(255, 255, 255, .18);
+.play-btn:hover, .play-btn:focus {
+  text-shadow: 0px 5px 5px rgba(255, 255, 255, .3), 0px 8px 10px rgba(255, 255, 255, .21), 0px 3px 14px rgba(255, 255, 255, .18);
 }
 
 .play-btn:active {
-  text-shadow: 0px 6px 6px rgba(255, 255, 255, .3),
-               0px 10px 14px rgba(255, 255, 255, .21),
-               0px 4px 18px rgba(255, 255, 255, .18);
+  text-shadow: 0px 6px 6px rgba(255, 255, 255, .3), 0px 10px 14px rgba(255, 255, 255, .21), 0px 4px 18px rgba(255, 255, 255, .18);
 }
 
 .play-btn:disabled {
@@ -167,6 +185,22 @@ body {
 .play-btn__icon {
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+    animation-timing-function: cubic-bezier(.4, 0, .2, 1);
+  }
+
+  50%, to {
+    transform: rotate(360deg);
+  }
+}
+
+.play-btn__icon.spin {
+  animation: spin 2000ms linear infinite;
 }
 
 .play-btn__icon::before {
@@ -174,8 +208,7 @@ body {
   transition: opacity 120ms cubic-bezier(.4, 0, .2, 1);
 }
 
-.play-btn:hover .play-btn__icon::before,
-.play-btn:focus .play-btn__icon::before {
+.play-btn:hover .play-btn__icon::before, .play-btn:focus .play-btn__icon::before {
   opacity: 1;
 }
 
@@ -188,7 +221,6 @@ body {
     opacity: .2;
     transform: scale(0, 0);
   }
-
   100% {
     opacity: 0;
     transform: scale(2, 2);
@@ -202,23 +234,22 @@ body {
   width: 100%;
   height: 100%;
   content: "";
-
   background-color: white;
   border-radius: 50%;
-
   opacity: 0;
   transform: scale(0, 0);
   transform-origin: center center;
 }
 
 .play-btn--playing::after {
-  animation: play 1000ms cubic-bezier(0, 0, .2, 1) infinite;
+  animation: play 1000ms cubic-bezier(0, 0, .2, 1);
 }
 
 .disabledX {
   color: gray;
   margin: auto;
 }
+
 
 /*computer pointing animation*/
 
@@ -227,7 +258,6 @@ body {
     opacity: 1;
     transform: scale(0);
   }
-
   40%, 100% {
     opacity: 0;
     transform: scale(1);
@@ -248,10 +278,6 @@ body {
   z-index: 2;
 }
 
-
-.animating #greenRing,
-.animating #redRing,
-.animating #blueRing,
-.animating #yellowRing {
+.animating #greenRing, .animating #redRing, .animating #blueRing, .animating #yellowRing {
   animation: ghostPoint 1000ms ease-out;
 }

@@ -13,7 +13,7 @@ interface IMove {
   stateAfterMove: IState;
 }
 interface IStateTransition {
-  turnIndexBeforeMove : number;
+  turnIndexBeforeMove: number;
   stateBeforeMove: IState;
   numberOfPlayers: number;
   move: IMove;
@@ -43,8 +43,8 @@ interface IMoveService {
 declare var moveService: IMoveService;
 
 interface IAlphaBetaLimits {
-  millisecondsLimit? : number;
-  maxDepth? : number;
+  millisecondsLimit?: number;
+  maxDepth?: number;
 }
 interface IAlphaBetaService {
   alphaBetaDecision(
@@ -71,23 +71,23 @@ declare var translate: ITranslateService;
 
 interface IResizeGameAreaService {
   setWidthToHeight(widthToHeightRatio: number,
-    dimensionsChanged?: (gameAreaWidth: number, gameAreaHeight: number)=>void): void;
+    dimensionsChanged?: (gameAreaWidth: number, gameAreaHeight: number) => void): void;
 }
 declare var resizeGameAreaService: IResizeGameAreaService;
 
 interface ILog {
-  info(... args: any[]):void;
-  debug(... args: any[]):void;
-  warn(... args: any[]):void;
-  error(... args: any[]):void;
-  log(... args: any[]):void;
-  alwaysLog(... args: any[]):void;
+  info(...args: any[]): void;
+  debug(...args: any[]): void;
+  warn(...args: any[]): void;
+  error(...args: any[]): void;
+  log(...args: any[]): void;
+  alwaysLog(...args: any[]): void;
 }
-declare var log:ILog;
+declare var log: ILog;
 
 interface IDragAndDropService {
   addDragListener(touchElementId: string,
-      handleDragEvent: (type: string, clientX: number, clientY: number, event: TouchEvent|MouseEvent) => void): void;
+    handleDragEvent: (type: string, clientX: number, clientY: number, event: TouchEvent | MouseEvent) => void): void;
 }
 declare var dragAndDropService: IDragAndDropService;
 

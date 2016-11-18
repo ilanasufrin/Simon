@@ -1,15 +1,15 @@
-describe('aiService', function() {
-  describe('chooseFromPossibleMoves', function() {
+describe("aiService", function() {
+  describe("chooseFromPossibleMoves", function() {
     let state: IState;
     let turnIndexBeforeMove: number;
-    let delta: SequenceDelta = 3;
+    let delta: number = 3;
 
-    it('returns a valid move', function() {
+    it("returns a valid move", function() {
       state = {
         expectedSequence: [3, 0],
         playerSequence: [],
         delta: delta
-      }
+      };
 
       turnIndexBeforeMove = 0;
 
@@ -24,11 +24,11 @@ describe('aiService', function() {
     });
   });
 
-  describe('createComputerMove', function() {
+  describe("createComputerMove", function() {
     let move: IMove;
-    let delta: SequenceDelta = 3;
+    let delta = 3;
 
-    it('returns a valid move', function() {
+    it("returns a valid move", function() {
       move = {
         endMatchScores: [0, 1],
         turnIndexAfterMove: 1,
@@ -37,27 +37,27 @@ describe('aiService', function() {
           playerSequence: [],
           delta: delta
         }
-      }
+      };
 
-        let compMove = aiService.createComputerMove(move);
-        expect(move).toEqual(
+      let compMove = aiService.createComputerMove(move);
+      expect(move).toEqual(
         {
           endMatchScores: [0, 1],
           turnIndexAfterMove: 1,
           stateAfterMove: {
             expectedSequence: [3, 0],
-            playerSequence: [ jasmine.any(Number) ],
+            playerSequence: [jasmine.any(Number)],
             delta: delta
           }
-      });
+        });
     });
   });
 
-  describe('findComputerMove', function() {
+  describe("findComputerMove", function() {
     let move: IMove;
-    let delta: SequenceDelta = 3;
+    let delta: number = 3;
 
-    it('returns the move that the computer player should do for the given state in the passed-in move.', function() {
+    it("returns the move that the computer player should do for the given state in the passed-in move.", function() {
       move = {
         endMatchScores: [0, 1],
         turnIndexAfterMove: 1,
@@ -66,19 +66,19 @@ describe('aiService', function() {
           playerSequence: [],
           delta: delta
         }
-      }
+      };
 
-        let compMove = aiService.findComputerMove(move);
-        expect(move).toEqual(
+      let compMove = aiService.findComputerMove(move);
+      expect(move).toEqual(
         {
           endMatchScores: [0, 1],
           turnIndexAfterMove: 1,
           stateAfterMove: {
             expectedSequence: [3, 0],
-            playerSequence: [ jasmine.any(Number) ],
+            playerSequence: [jasmine.any(Number)],
             delta: delta
           }
-      });
+        });
     });
   });
 });

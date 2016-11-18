@@ -1,10 +1,8 @@
-describe('Simon gameLogic', function() {
+describe("Simon gameLogic", function() {
 
-  describe('createInitialMove', function() {
-    let initialMove: IMove;
-
-    it('is blank except for one expected move', function() {
-      initialMove = {
+  describe("createInitialMove", function() {
+    it("is blank except for one expected move", function() {
+      const initialMove: { [_: string]: any } = {
         endMatchScores: null,
         turnIndexAfterMove: 0,
         stateAfterMove: {
@@ -12,22 +10,22 @@ describe('Simon gameLogic', function() {
           playerSequence: [],
           delta: null
         }
-      }
+      };
 
       expect(gameLogic.createInitialMove()).toEqual(initialMove);
     });
   });
 
-   describe('addToExpectedSequence', function() {
+  describe("addToExpectedSequence", function() {
     let currentState: IState;
-    let delta: SequenceDelta;
+    let delta: number;
 
-    it('adds one to color to the sequence', function() {
+    it("adds one to color to the sequence", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [],
         delta: delta
-      }
+      };
 
       let lengthBefore = currentState.expectedSequence.length;
       gameLogic.addToExpectedSequence(currentState);
@@ -37,76 +35,76 @@ describe('Simon gameLogic', function() {
     });
   });
 
-  describe('checkSequenceMatchesExpected', function() {
+  describe("checkSequenceMatchesExpected", function() {
     let currentState: IState;
-    let delta: SequenceDelta;
+    let delta: number;
 
-    it('returns true when the player sequence is empty', function() {
+    it("returns true when the player sequence is empty", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [],
         delta: delta
-      }
+      };
 
-     expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
+      expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
     });
 
-    it('returns true when the player sequence matches the expected sequence so far', function() {
+    it("returns true when the player sequence matches the expected sequence so far", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [3],
         delta: delta
-      }
+      };
 
-     expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
+      expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
     });
 
-    it('returns false when the player sequence is different than expected', function() {
+    it("returns false when the player sequence is different than expected", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [1],
         delta: delta
-      }
+      };
 
-     expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(false);
+      expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(false);
     });
   });
 
-  describe('getWinner', function() {
+  describe("getWinner", function() {
     let currentState: IState;
     let turnIndex: number;
-    let delta: SequenceDelta;
+    let delta: number;
 
-    it('returns -1 if nobody has lost yet', function() {
+    it("returns -1 if nobody has lost yet", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [],
         delta: delta
-      }
+      };
 
       turnIndex = 1;
 
       expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(-1);
     });
 
-    it('returns 1 if player 0 has lost', function() {
+    it("returns 1 if player 0 has lost", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [1, 1],
         delta: delta
-      }
+      };
 
       turnIndex = 0;
 
       expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(1);
     });
 
-    it('returns 0 if player 1 has lost', function() {
+    it("returns 0 if player 1 has lost", function() {
       currentState = {
         expectedSequence: [3, 0],
         playerSequence: [1, 1],
         delta: delta
-      }
+      };
 
       turnIndex = 1;
 
@@ -114,72 +112,60 @@ describe('Simon gameLogic', function() {
     });
   });
 
-  describe('createMove', function() {
+  describe("createMove", function() {
     let stateBeforeMove: IState;
     let color: number;
     let turnIndexBeforeMove: number;
-    let delta: SequenceDelta = 3;
+    let delta = 3;
 
-    it('does not set endMatchScores if there is no winner', function() {
+    it("does not set endMatchScores if there is no winner", function() {
       stateBeforeMove = {
         expectedSequence: [3, 0],
         playerSequence: [],
         delta: delta
-      }
-
-      color: 3;
-
-      turnIndexBeforeMove: 0;
+      };
 
       let answer = gameLogic.createMove(stateBeforeMove, color, turnIndexBeforeMove);
       expect(answer).toEqual(
         {
-          endMatchScores: [ 0, 0 ],
+          endMatchScores: [0, 0],
           turnIndexAfterMove: -1,
           stateAfterMove: {
             delta: undefined,
-            playerSequence: [ undefined ],
-            expectedSequence: [ 3, 0 ]
+            playerSequence: [undefined],
+            expectedSequence: [3, 0]
           }
         }
-       );
+      );
     });
 
-    it('sets endMatchScores if there is no winner this round', function() {
-       stateBeforeMove = {
+    it("sets endMatchScores if there is no winner this round", function() {
+      stateBeforeMove = {
         expectedSequence: [2, 1],
         playerSequence: [],
         delta: delta
-      }
-
-      color: 3;
-
-      turnIndexBeforeMove: 0;
+      };
 
       let answer = gameLogic.createMove(stateBeforeMove, color, turnIndexBeforeMove);
       expect(answer).toEqual(
         {
-          endMatchScores: [ 0, 0 ],
+          endMatchScores: [0, 0],
           turnIndexAfterMove: -1,
           stateAfterMove: {
             delta: undefined,
-            playerSequence: [ undefined ],
-            expectedSequence: [ 2, 1 ]
+            playerSequence: [undefined],
+            expectedSequence: [2, 1]
           }
         }
-       );
+      );
     });
 
-    it('clears the playerSequence and adds to the expectedSequence after a full successful turn', function() {
+    it("clears the playerSequence and adds to the expectedSequence after a full successful turn", function() {
       stateBeforeMove = {
         expectedSequence: [2, 3],
-        playerSequence: [ 2 ],
+        playerSequence: [2],
         delta: delta
-      }
-
-      color: 3;
-
-      turnIndexBeforeMove: 0;
+      };
 
       let answer = gameLogic.createMove(stateBeforeMove, 3, turnIndexBeforeMove);
 
@@ -187,33 +173,29 @@ describe('Simon gameLogic', function() {
       expect(answer.stateAfterMove.expectedSequence.length).toBe(3);
     });
 
-    it('if stateBeforeMove is falsy it calls getInitialState', function() {
+    it("if stateBeforeMove is falsy it calls getInitialState", function() {
       stateBeforeMove = null;
-
-      color: 3;
-
-      turnIndexBeforeMove: 0;
 
       let answer = gameLogic.createMove(stateBeforeMove, color, turnIndexBeforeMove);
       expect(answer).toEqual(
         {
-          endMatchScores: [ 0, 0 ],
+          endMatchScores: [0, 0],
           turnIndexAfterMove: -1,
           stateAfterMove: {
             delta: undefined,
-            playerSequence: [ undefined ],
-            expectedSequence: [ jasmine.any(Number) ]
+            playerSequence: [undefined],
+            expectedSequence: [jasmine.any(Number)]
           }
         }
-       );
+      );
     });
   });
 
-  describe('checkMoveOk', function() {
-    let stateTransition : IStateTransition;
-    it('does nothing at the moment', function() {
+  describe("checkMoveOk", function() {
+    let stateTransition: IStateTransition;
+    it("does nothing at the moment", function() {
       gameLogic.checkMoveOk(stateTransition);
-      expect(true).toBe(true); //this is obviously just a placeholder
+      expect(true).toBe(true); // this is obviously just a placeholder
     });
   });
 });
