@@ -15,6 +15,9 @@ interface IState {
   delta: number;
 }
 
+// Sentinel since no proposals in Simon
+interface IProposalData {}
+
 namespace gameLogic {
   /** Returns an initial, empty, sequence for the players and the board. */
   function getInitialSequence(): Sequence {

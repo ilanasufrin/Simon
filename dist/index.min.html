@@ -18,51 +18,56 @@
   <audio id="simonSound1" src="./exports/simonSound1.mp3" preload="auto"></audio>
   <audio id="simonSound2" src="./exports/simonSound2.mp3" preload="auto"></audio>
   <audio id="simonSound3" src="./exports/simonSound3.mp3" preload="auto"></audio>
-<div id="gameArea">
 
-  <div class="canvas">
-    <button type="button" class="play-btn" aria-label="Play Sequence" ng-disabled="game.shouldBeDisabled" ng-click="game.animateSequence(game.state, true)">
-        <i class="fa fa-play play-btn__icon" title="play" aria-hidden="true"></i>
-    </button>
-    <div style="width:100%; height:50%;" class="row">
-      <div class="pad green" tabindex="0" style="width:50%; height:100%;" ng-click="game.cellClicked(0)"><div id="greenRing"></div> </div>
-      <div class="pad red" tabindex="0" style="width:50%; height:100%;" ng-click="game.cellClicked(1)"><div id="redRing"></div> </div>
+  <main id="gameArea">
+    <div class="canvas" ng-class="{'noPointer': game.isCanvasDisabled()}">
+      <!-- TODO a11y -->
+      <button type="button" class="play-btn"
+              ng-disabled="game.isButtonDisabled()"
+              ng-click="game.animateSequence(game.state, true)">
+        <i aria-hidden="true" ng-class="game.getBtnClasses(game.state.status)"></i>
+      </button>
+      <div class="row">
+        <div class="pad green" tabindex="0" ng-click="game.cellClicked(0)"><div id="greenRing"></div></div>
+        <div class="pad red" tabindex="0" ng-click="game.cellClicked(1)"><div id="redRing"></div></div>
+      </div>
+      <div class="row">
+        <div class="pad yellow" tabindex="0" ng-click="game.cellClicked(2)"><div id="yellowRing"></div></div>
+        <div class="pad blue" tabindex="0" ng-click="game.cellClicked(3)"><div id="blueRing"></div></div>
+      </div>
     </div>
-    <div style="width:100%; height:50%;" class="row">
-      <div class="pad yellow" tabindex="0" style="width:50%; height:100%" ng-click="game.cellClicked(2)"><div id="yellowRing"></div> </div>
-      <div class="pad blue" tabindex="0" style="width:50%; height:100%;" ng-click="game.cellClicked(3)"><div id="blueRing"></div> </div>
-    </div>
-  </div>
-</div>
-     <script charset="utf-8">
-      (function() {
-        'use strict';
-        const playBtn = document.querySelector('.play-btn');
-        const initPlaying = function() {
-          playBtn.disabled = true;
-          playBtn.classList.add('play-btn--playing');
-          setTimeout(function() {
-            playBtn.classList.remove('play-btn--playing');
-          }, 1 * 1000);
-        };
-        playBtn.addEventListener('touchend', function(evt) {
-          evt.preventDefault();
-          const click = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true
-          });
-          playBtn.dispatchEvent(click);
+  </main>
+
+  <script charset="utf-8">
+    // TODO REFACTOR 👏🏻 THIS 👏🏻 OUT 👏🏻
+    (function() {
+      'use strict';
+      const playBtn = document.querySelector('.play-btn');
+      const initPlaying = function() {
+        playBtn.disabled = true;
+        playBtn.classList.add('play-btn--playing');
+        setTimeout(function() {
+          playBtn.classList.remove('play-btn--playing');
+        }, 1 * 1000);
+      };
+      playBtn.addEventListener('touchend', function(evt) {
+        evt.preventDefault();
+        const click = new MouseEvent('click', {
+          view: window,
+          bubbles: true,
+          cancelable: true
         });
-        playBtn.addEventListener('click', function(evt) {
+        playBtn.dispatchEvent(click);
+      });
+      playBtn.addEventListener('click', function(evt) {
+        initPlaying();
+      })
+      playBtn.addEventListener('keyup', function(evt) {
+        if (evt.key && evt.key === 'Space' || evt.keyCode === 32) {
           initPlaying();
-        })
-        playBtn.addEventListener('keyup', function(evt) {
-          if (evt.key && evt.key === 'Space' || evt.keyCode === 32) {
-            initPlaying();
-          }
-        });
-      })();
-    </script>
+        }
+      });
+    })();
+  </script>
 </body>
 </html>

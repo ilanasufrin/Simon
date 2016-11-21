@@ -152,6 +152,7 @@ namespace game {
   function endAnimation(animationIntervalId: number) {
     clearInterval(animationIntervalId);
 
+    // ??? TODO ask Ilana about this
     $rootScope.$apply(() => {
       if (gameLogic.getWinner(state, 1) >= 0) {
         // TODO: Refactor the ending logic into the ng elements

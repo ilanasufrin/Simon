@@ -32129,15 +32129,14 @@ var gamingPlatform;
 })(gamingPlatform || (gamingPlatform = {}));
 //# sourceMappingURL=angularExceptionHandler.js.map
 ;
-// type Board = string[][];
-// interface BoardDelta {
-//   row: number;
-//   col: number;
-// }
-// interface IState {
-//   board: Board;
-//   delta: BoardDelta;
-// }
+var GameStatus;
+(function (GameStatus) {
+    GameStatus[GameStatus["IDLE"] = 0] = "IDLE";
+    GameStatus[GameStatus["AWAITING_NEXT_SEQUENCE_START"] = 1] = "AWAITING_NEXT_SEQUENCE_START";
+    GameStatus[GameStatus["PLAYING_SEQUENCE"] = 2] = "PLAYING_SEQUENCE";
+    GameStatus[GameStatus["AWAITING_INPUT"] = 3] = "AWAITING_INPUT";
+    GameStatus[GameStatus["ENDED"] = 4] = "ENDED";
+})(GameStatus || (GameStatus = {}));
 var gameLogic;
 (function (gameLogic) {
     /** Returns an initial, empty, sequence for the players and the board. */
@@ -32151,11 +32150,16 @@ var gameLogic;
         return sequence;
     }
     function getInitialState() {
-        return { expectedSequence: getInitialSequencePopulated(), playerSequence: getInitialSequence(), delta: null };
+        return {
+            status: GameStatus.IDLE,
+            expectedSequence: getInitialSequencePopulated(),
+            playerSequence: getInitialSequence(),
+            delta: null
+        };
     }
     gameLogic.getInitialState = getInitialState;
     function checkSequenceMatchesExpected(currentState) {
-        console.log('checking sequence');
+        console.log("checking sequence");
         console.log(currentState);
         for (var i = 0; i < currentState.playerSequence.length; i++) {
             if (currentState.expectedSequence[i] !== currentState.playerSequence[i]) {
@@ -32168,21 +32172,21 @@ var gameLogic;
     function addToExpectedSequence(currentState) {
         var newColor = Math.floor(Math.random() * 4);
         currentState.expectedSequence.push(newColor);
-        console.log('returning new color', newColor);
+        console.log("returning new color", newColor);
         return newColor;
     }
     gameLogic.addToExpectedSequence = addToExpectedSequence;
-    //if there is newly a loss, return the index of whoever just lost
+    // if there is newly a loss, return the index of whoever just lost
     function getWinner(currentState, turnIndexOfMove) {
-        console.log('checking winner');
+        console.log("checking winner");
         console.log(currentState);
         if (!checkSequenceMatchesExpected(currentState)) {
-            console.log('there is a winner');
-            console.log('this is the loser', turnIndexOfMove);
+            console.log("there is a winner");
+            console.log("this is the loser", turnIndexOfMove);
             return 1 - turnIndexOfMove;
         }
-        console.log('no winner');
-        return -1; //no winner
+        console.log("no winner");
+        return -1; // no winner
     }
     gameLogic.getWinner = getWinner;
     /**
@@ -32193,188 +32197,184 @@ var gameLogic;
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
-        log.info('state passed into createMove');
+        log.info("state passed into createMove");
         log.info(stateBeforeMove);
+        var nextStatus = GameStatus.AWAITING_INPUT;
         var sequence1 = stateBeforeMove.expectedSequence;
         var sequence2 = stateBeforeMove.playerSequence;
         var sequence1AfterMove = angular.copy(sequence1);
         var sequence2AfterMove = angular.copy(sequence2);
-        log.info('sequence after copying');
-        log.info(sequence2AfterMove);
         stateBeforeMove.playerSequence.push(color);
         sequence2AfterMove.push(color);
         var winner = getWinner(stateBeforeMove, turnIndexBeforeMove);
         var endMatchScores;
         var turnIndexAfterMove;
-        if (winner !== -1) {
-            log.info('game over');
-            console.debug('the winner is ', winner);
+        if (winner >= 0) {
             // Game over.
+            nextStatus = GameStatus.ENDED;
             turnIndexAfterMove = -1;
             endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
         }
         else {
-            // Game continues. Now it's the opponent's turn (the turn switches from 0 to 1 and 1 to 0).
-            log.info('game continues');
-            //clear the player's sequence so we can start the pattern over
-            //but only if the player has submitted enough colors to make a full sequence
+            // Game continues. Now it"s the opponent"s turn (the turn switches from 0 to 1 and 1 to 0).
+            // clear the player"s sequence so we can start the pattern over
+            // but only if the player has submitted enough colors to make a full sequence
             if (sequence1AfterMove.length === sequence2AfterMove.length) {
-                log.info('submitted a full pattern, clearing');
+                log.info("submitted a full pattern, clearing");
                 sequence2AfterMove = [];
-                //add a new color for the next round
+                // add a new color for the next round
                 var newColor = addToExpectedSequence(stateBeforeMove);
-                console.log('next color in sequence', newColor);
+                console.log("next color in sequence", newColor);
                 sequence1AfterMove.push(newColor);
-                //switch players, but only once a full turn is completed
+                // switch players, but only once a full turn is completed
                 turnIndexAfterMove = 1 - turnIndexBeforeMove;
+                nextStatus = GameStatus.AWAITING_NEXT_SEQUENCE_START;
             }
             else {
-                //keep the same player until a sequence has been completed
+                // keep the same player until a sequence has been completed
                 turnIndexAfterMove = turnIndexBeforeMove;
             }
             endMatchScores = null;
         }
         var delta = color;
-        var stateAfterMove = { delta: delta, playerSequence: sequence2AfterMove, expectedSequence: sequence1AfterMove };
-        console.log(stateAfterMove);
+        var stateAfterMove = {
+            status: nextStatus,
+            delta: delta,
+            playerSequence: sequence2AfterMove,
+            expectedSequence: sequence1AfterMove
+        };
         return { endMatchScores: endMatchScores, turnIndexAfterMove: turnIndexAfterMove, stateAfterMove: stateAfterMove };
     }
     gameLogic.createMove = createMove;
     function createInitialMove() {
-        return { endMatchScores: null, turnIndexAfterMove: 0,
-            stateAfterMove: getInitialState() };
+        return {
+            endMatchScores: null, turnIndexAfterMove: 0,
+            stateAfterMove: getInitialState()
+        };
     }
     gameLogic.createInitialMove = createInitialMove;
     function checkMoveOk(stateTransition) {
-        // We can assume that turnIndexBeforeMove and stateBeforeMove are legal, and we need
-        // to verify that the move is OK.
-        // let turnIndexBeforeMove = stateTransition.turnIndexBeforeMove;
-        // let stateBeforeMove: IState = stateTransition.stateBeforeMove;
-        // let move: IMove = stateTransition.move;
-        // console.debug('move', move);
-        // if (!stateBeforeMove && turnIndexBeforeMove === 0 &&
-        //     angular.equals(createInitialMove(), move)) {
-        //   return;
-        // }
-        // let deltaValue: SequenceDelta = move.stateAfterMove.delta;
-        // console.debug('delta value', deltaValue);
-        // let row = deltaValue.row;
-        // let col = deltaValue.col;
-        //idk why this is here yet
-        // let expectedMove = createMove(stateBeforeMove, deltaValue, turnIndexBeforeMove);
-        // if (!angular.equals(move, expectedMove)) {
-        //   throw new Error("Expected move=" + angular.toJson(expectedMove, true) +
-        //       ", but got stateTransition=" + angular.toJson(stateTransition, true))
-        // }
+        // There are no "invalid moves" in Simon, therefore this is a nop.
     }
     gameLogic.checkMoveOk = checkMoveOk;
 })(gameLogic || (gameLogic = {}));
 //# sourceMappingURL=gameLogic.js.map
 ;
-// interface SupportedLanguages {
-//   en: string, iw: string,
-//   pt: string, zh: string,
-//   el: string, fr: string,
-//   hi: string, es: string,
-// };
 ;
 var game;
 (function (game) {
-    // Global variables are cleared when getting updateUI.
-    // I export all variables to make it easy to debug in the browser by
-    // simply typing in the console, e.g.,
-    // game.currentUpdateUI
-    game.currentUpdateUI = null;
-    game.didMakeMove = false; // You can only make one move per updateUI
-    game.animationEndedTimeout = null;
     game.state = null;
-    game.shouldBeDisabled = true;
+    var currentUpdateUI = null;
+    var didMakeMove = false; // You can only make one move per updateUI
+    var animationEndedTimeout = null;
     function init() {
-        registerServiceWorker();
+        var isLocal = ["localhost", "127.0.0.1", "0.0.0.0"].indexOf($location.host()) >= 0;
+        if (!isLocal) {
+            registerServiceWorker();
+        }
         translate.setTranslations(getTranslations());
-        translate.setLanguage('en');
-        // log.log("Translation of 'GAME_OVER' is " + translate('GAME_OVER'));
+        translate.setLanguage("en");
+        // log.log("Translation of "GAME_OVER" is " + translate("GAME_OVER"));
         resizeGameAreaService.setWidthToHeight(1);
         moveService.setGame({
             minNumberOfPlayers: 2,
             maxNumberOfPlayers: 2,
             checkMoveOk: gameLogic.checkMoveOk,
             updateUI: updateUI,
-            gotMessageFromPlatform: null,
-            animateSequence: animateSequence
+            gotMessageFromPlatform: null
         });
-        enableButtons();
+        game.state = gameLogic.getInitialState();
     }
     game.init = init;
     function registerServiceWorker() {
-        if ('serviceWorker' in navigator) {
+        if ("serviceWorker" in navigator) {
             var n = navigator;
-            log.log('Calling serviceWorker.register');
-            n.serviceWorker.register('service-worker.js').then(function (registration) {
-                log.log('ServiceWorker registration successful with scope: ', registration.scope);
+            log.log("Calling serviceWorker.register");
+            n.serviceWorker.register("service-worker.js").then(function (registration) {
+                log.log("ServiceWorker registration successful with scope: ", registration.scope);
             }).catch(function (err) {
-                log.log('ServiceWorker registration failed: ', err);
+                log.log("ServiceWorker registration failed: ", err);
             });
         }
     }
     function getTranslations() {
         return {};
     }
-    function updateUI(params) {
-        log.info("Game got updateUI ILANA:", params);
-        game.didMakeMove = false; // Only one move per updateUI
-        game.currentUpdateUI = params;
+    function getBtnClasses(currentStatus) {
+        var classes = ["play-btn__icon", "fa"];
+        var faClass = ((_a = {},
+            _a[GameStatus.IDLE] = "fa-play",
+            _a[GameStatus.AWAITING_NEXT_SEQUENCE_START] = "fa-play",
+            _a[GameStatus.PLAYING_SEQUENCE] = "fa-play",
+            _a[GameStatus.AWAITING_INPUT] = "fa-spinner",
+            _a[GameStatus.ENDED] = "fa-repeat",
+            _a
+        ))[currentStatus];
+        classes.push(faClass);
+        if (currentStatus === GameStatus.AWAITING_INPUT) {
+            classes.push("spin");
+        }
+        return classes;
+        var _a;
+    }
+    game.getBtnClasses = getBtnClasses;
+    function isButtonDisabled() {
+        switch (game.state.status) {
+            case GameStatus.AWAITING_INPUT:
+            case GameStatus.PLAYING_SEQUENCE:
+            case GameStatus.ENDED:
+                return true;
+            default:
+                return false;
+        }
+    }
+    game.isButtonDisabled = isButtonDisabled;
+    function isCanvasDisabled() {
+        switch (game.state.status) {
+            case GameStatus.PLAYING_SEQUENCE:
+            case GameStatus.ENDED:
+                return true;
+            default:
+                return false;
+        }
+    }
+    game.isCanvasDisabled = isCanvasDisabled;
+    function updateUI(updates) {
+        didMakeMove = false; // Only one move per updateUI
+        currentUpdateUI = updates;
         clearAnimationTimeout();
-        game.state = params.move.stateAfterMove;
         if (isFirstMove()) {
             game.state = gameLogic.getInitialState();
             if (isMyTurn())
                 makeMove(gameLogic.createInitialMove());
         }
         else {
+            game.state = updates.move.stateAfterMove;
             // We calculate the AI move only after the animation finishes,
             // because if we call aiService now
             // then the animation will be paused until the javascript finishes.
-            game.animationEndedTimeout = $timeout(animationEndedCallback, 500);
-            if (params.move.turnIndexAfterMove === -1) {
-                console.debug('we know the game has been lost');
-                //the game has been lost so all buttons should be disabled
-                disableButtons();
-                switchOutPlayButton();
-            }
+            animationEndedTimeout = $timeout(animationEndedCallback, 500);
         }
-        //if the game is over, disable the buttons for good
-        console.debug('params ', params);
     }
     game.updateUI = updateUI;
     function animateSequence(state, human, shouldPlayComputer) {
-        var playBtn = document.querySelector('.play-btn');
+        state.status = GameStatus.PLAYING_SEQUENCE;
+        var playBtn = document.querySelector(".play-btn");
         var animationIntervalId = 0;
-        disableButtons();
         var i = 0;
         var animate;
+        var sequenceFinished = function () { return i === state.expectedSequence.length; };
         if (human) {
             animate = function () {
-                if (i === state.expectedSequence.length) {
-                    clearInterval(animationIntervalId);
-                    if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
-                        console.debug('winner in ANIMATE');
-                        disableButtons();
-                        switchOutPlayButton();
-                    }
-                    else {
-                        console.debug('no winner in ANIMATE');
-                        enableButtons();
-                    }
+                if (sequenceFinished()) {
+                    endAnimation(animationIntervalId);
                     if (typeof shouldPlayComputer !== "undefined") {
-                        console.debug('in the callback');
                         setTimeout(function () {
                             animateSequence(state, false, undefined);
                         }, 1000);
                     }
                 }
                 else {
-                    console.log('EXPECTED SEQUENCE is ' + (state.expectedSequence[i]));
                     pickElement(state.expectedSequence[i], true);
                     i++;
                 }
@@ -32382,24 +32382,13 @@ var game;
         }
         else {
             animate = function () {
-                if (i === state.playerSequence.length) {
-                    clearInterval(animationIntervalId);
-                    if (gameLogic.getWinner(state, 1) === 0 || gameLogic.getWinner(state, 1) === 1) {
-                        console.debug('winner in ANIMATE');
-                        disableButtons();
-                        switchOutPlayButton();
-                    }
-                    else {
-                        console.debug('no winner in ANIMATE');
-                        enableButtons();
-                    }
+                if (sequenceFinished()) {
+                    endAnimation(animationIntervalId);
                 }
                 else {
                     if (state.playerSequence[i] === null) {
-                        console.log('this is the mess up');
                         return;
                     }
-                    console.log('computer SEQUENCE is ' + (state.playerSequence[i]));
                     pickElement(state.playerSequence[i], false);
                     i++;
                 }
@@ -32409,79 +32398,61 @@ var game;
         animate();
     }
     game.animateSequence = animateSequence;
-    function switchOutPlayButton() {
-        var playBtn = angular.element(document.querySelector('.play-btn__icon'));
-        if (playBtn) {
-            console.debug('switching out play button');
-            playBtn.removeClass('play-btn__icon');
-            playBtn.removeClass('fa-play');
-            playBtn.addClass('fa-times');
-            playBtn.addClass('disabledX');
-        }
-        $rootScope.$apply();
+    function endAnimation(animationIntervalId) {
+        clearInterval(animationIntervalId);
+        // ??? TODO ask Ilana about this
+        $rootScope.$apply(function () {
+            if (gameLogic.getWinner(game.state, 1) >= 0) {
+                // TODO: Refactor the ending logic into the ng elements
+                game.state.status = GameStatus.ENDED;
+            }
+            else {
+                game.state.status = GameStatus.AWAITING_INPUT;
+            }
+        });
     }
-    function disableButtons() {
-        var playBtn = document.querySelector('.play-btn');
-        if (playBtn) {
-            playBtn.disabled = true;
-            game.shouldBeDisabled = true;
-            var myEl = angular.element(document.querySelector('.canvas'));
-            myEl.addClass('noPointer');
-            $rootScope.$apply(); //repaint the page
-        }
-    }
-    game.disableButtons = disableButtons;
-    function enableButtons() {
-        var playBtn = document.querySelector('.play-btn');
-        playBtn.disabled = false;
-        game.shouldBeDisabled = false;
-        var myEl = angular.element(document.querySelector('.canvas'));
-        myEl.removeClass('noPointer');
-        $rootScope.$apply(); //repaint the page
-    }
-    game.enableButtons = enableButtons;
     function pickElement(el, human) {
         playSound(el);
         switch (el) {
             case 0:
-                handleAnimationTiming('.green', human);
+                handleAnimationTiming(".green", human);
                 break;
             case 1:
-                handleAnimationTiming('.red', human);
+                handleAnimationTiming(".red", human);
                 break;
             case 2:
-                handleAnimationTiming('.yellow', human);
+                handleAnimationTiming(".yellow", human);
                 break;
             case 3:
-                handleAnimationTiming('.blue', human);
+                handleAnimationTiming(".blue", human);
                 break;
             default:
-                console.error('unrecognized element ', el);
+                console.error("unrecognized element ", el);
         }
     }
     function playSound(el) {
-        var audio = document.getElementById('simonSound' + el);
+        var audio = document.getElementById("simonSound" + el);
         if (audio) {
             audio.play();
         }
     }
     function handleAnimationTiming(el, human) {
         var myEl = angular.element(document.querySelector(el));
-        myEl.addClass('highlighted');
+        myEl.addClass("highlighted");
         if (!human) {
-            //if it's a computer move, animate the ghost pointers
-            // console.debug(el.substring(1) + 'Ring');
-            // const ring = document.getElementById(el.substring(1) + 'Ring');
-            myEl.removeClass('animating');
+            // if it"s a computer move, animate the ghost pointers
+            // console.debug(el.substring(1) + "Ring");
+            // const ring = document.getElementById(el.substring(1) + "Ring");
+            myEl.removeClass("animating");
             myEl[0].offsetWidth;
-            myEl.addClass('animating');
+            myEl.addClass("animating");
         }
         setTimeout(function () {
-            myEl.addClass('unHighlighted');
-            myEl.removeClass('highlighted');
+            myEl.addClass("unHighlighted");
+            myEl.removeClass("highlighted");
         }, 1000);
         setTimeout(function () {
-            myEl.removeClass('unHighlighted');
+            myEl.removeClass("unHighlighted");
         }, 1500);
     }
     function animationEndedCallback() {
@@ -32489,43 +32460,43 @@ var game;
         maybeSendComputerMove();
     }
     function clearAnimationTimeout() {
-        if (game.animationEndedTimeout) {
-            $timeout.cancel(game.animationEndedTimeout);
-            game.animationEndedTimeout = null;
+        if (animationEndedTimeout) {
+            $timeout.cancel(animationEndedTimeout);
+            animationEndedTimeout = null;
         }
     }
     function maybeSendComputerMove() {
         if (!isComputerTurn())
             return;
-        console.debug('currentUpdateUI.move', game.currentUpdateUI.move);
-        var move = aiService.findComputerMove(game.currentUpdateUI.move);
+        console.debug("currentUpdateUI.move", currentUpdateUI.move);
+        var move = aiService.findComputerMove(currentUpdateUI.move);
         log.info("Computer move: ", move);
         animateSequence(game.state, true, true);
         makeMove(move);
     }
     function makeMove(move) {
-        console.log('trying to make a move', move);
-        if (game.didMakeMove) {
+        console.log("trying to make a move", move);
+        if (didMakeMove) {
             return;
         }
-        game.didMakeMove = true;
-        //HACK
-        if (!move || !game.currentUpdateUI.move) {
+        didMakeMove = true;
+        // HACK
+        if (!move || !currentUpdateUI.move) {
             var num = Math.floor(Math.random() * 4);
             move.stateAfterMove.delta = num;
             move.stateAfterMove.playerSequence.push(num);
         }
-        //end hack
+        // end hack
         moveService.makeMove(move);
     }
     function isFirstMove() {
-        return !game.currentUpdateUI.move.stateAfterMove;
+        return !currentUpdateUI.move.stateAfterMove;
     }
     function yourPlayerIndex() {
-        return game.currentUpdateUI.yourPlayerIndex;
+        return currentUpdateUI.yourPlayerIndex;
     }
     function isComputer() {
-        return game.currentUpdateUI.playersInfo[game.currentUpdateUI.yourPlayerIndex].playerId === '';
+        return currentUpdateUI.playersInfo[currentUpdateUI.yourPlayerIndex].playerId === "";
     }
     function isComputerTurn() {
         return isMyTurn() && isComputer();
@@ -32534,95 +32505,45 @@ var game;
         return isMyTurn() && !isComputer();
     }
     function isMyTurn() {
-        return !game.didMakeMove &&
-            game.currentUpdateUI.move.turnIndexAfterMove >= 0 &&
-            game.currentUpdateUI.yourPlayerIndex === game.currentUpdateUI.move.turnIndexAfterMove; // it's my turn
+        return !didMakeMove &&
+            currentUpdateUI.move.turnIndexAfterMove >= 0 &&
+            currentUpdateUI.yourPlayerIndex === currentUpdateUI.move.turnIndexAfterMove; // it`s my turn
     }
     function cellClicked(color) {
         log.info("Clicked on color:", color);
         if (!isHumanTurn())
             return;
-        if (window.location.search === '?throwException') {
-            throw new Error("Throwing the error because URL has '?throwException'");
+        if (window.location.search === "?throwException") {
+            throw new Error("Throwing the error because URL has \"?throwException\"");
         }
         var nextMove = null;
         try {
-            log.info('state on click', game.state);
-            nextMove = gameLogic.createMove(game.state, color, game.currentUpdateUI.move.turnIndexAfterMove);
+            log.info("state on click", game.state);
+            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI.move.turnIndexAfterMove);
         }
         catch (e) {
             log.info(["there was a problem choosing the color:", color]);
             return;
         }
         // Move is legal, make it!
-        log.info('move was legal');
+        log.info("move was legal");
         makeMove(nextMove);
         playSound(color);
     }
     game.cellClicked = cellClicked;
 })(game || (game = {}));
-angular.module('myApp', ['gameServices'])
+angular.module("myApp", ["gameServices"])
     .run(function () {
-    $rootScope['game'] = game;
+    $rootScope["game"] = game;
     game.init();
 });
 //# sourceMappingURL=game.js.map
 ;
-// module aiService {
-//   /** Returns the move that the computer player should do for the given state in move. */
-//   export function findComputerMove(move: IMove): IMove {
-//     return createComputerMove(move,
-//         // at most 1 second for the AI to choose a move (but might be much quicker)
-//         {millisecondsLimit: 1000});
-//   }
-//   /**
-//    * Returns all the possible moves for the given state and turnIndexBeforeMove.
-//    * Returns an empty array if the game is over.
-//    */
-//   export function getPossibleMoves(state: IState, turnIndexBeforeMove: number): IMove[] {
-//     let possibleMoves: IMove[] = [];
-//     for (let i = 0; i < gameLogic.ROWS; i++) {
-//       for (let j = 0; j < gameLogic.COLS; j++) {
-//         try {
-//           possibleMoves.push(gameLogic.createMove(state, i, j, turnIndexBeforeMove));
-//         } catch (e) {
-//           // The cell in that position was full.
-//         }
-//       }
-//     }
-//     return possibleMoves;
-//   }
-//   *
-//    * Returns the move that the computer player should do for the given state.
-//    * alphaBetaLimits is an object that sets a limit on the alpha-beta search,
-//    * and it has either a millisecondsLimit or maxDepth field:
-//    * millisecondsLimit is a time limit, and maxDepth is a depth limit.
-//   export function createComputerMove(
-//       move: IMove, alphaBetaLimits: IAlphaBetaLimits): IMove {
-//     // We use alpha-beta search, where the search states are TicTacToe moves.
-//     return alphaBetaService.alphaBetaDecision(
-//         move, move.turnIndexAfterMove, getNextStates, getStateScoreForIndex0, null, alphaBetaLimits);
-//   }
-//   function getStateScoreForIndex0(move: IMove, playerIndex: number): number {
-//     let endMatchScores = move.endMatchScores;
-//     if (endMatchScores) {
-//       return endMatchScores[0] > endMatchScores[1] ? Number.POSITIVE_INFINITY
-//           : endMatchScores[0] < endMatchScores[1] ? Number.NEGATIVE_INFINITY
-//           : 0;
-//     }
-//     return 0;
-//   }
-//   function getNextStates(move: IMove, playerIndex: number): IMove[] {
-//     return getPossibleMoves(move.stateAfterMove, playerIndex);
-//   }
-// }
 var aiService;
 (function (aiService) {
     /** Returns the move that the computer player should do for the given state in move. */
     function findComputerMove(move) {
-        return createComputerMove(move, 
-        // at most 1 second for the AI to choose a move (but might be much quicker)
-        { millisecondsLimit: 1000 });
+        return createComputerMove(move);
     }
     aiService.findComputerMove = findComputerMove;
     /**
@@ -32634,17 +32555,17 @@ var aiService;
         var possibleMoves = [];
         var move;
         for (var i = 0; i <= 3; i++) {
-            possibleMoves.push(i); //we will choose from all the colors
+            possibleMoves.push(i); // we will choose from all the colors
         }
         possibleMoves.push(winningChoice);
         possibleMoves.push(winningChoice);
         possibleMoves.push(winningChoice);
-        possibleMoves.push(winningChoice); //give a greater chance that we will choose the right color
+        possibleMoves.push(winningChoice); // give a greater chance that we will choose the right color
         var choice = (Math.floor(Math.random() * possibleMoves.length));
         var num = possibleMoves[choice];
-        console.debug('num ', num);
+        console.debug("num ", num);
         move = gameLogic.createMove(state, num, turnIndexBeforeMove);
-        console.debug('choosing', move);
+        console.debug("choosing", move);
         return move;
     }
     aiService.chooseFromPossibleMoves = chooseFromPossibleMoves;
@@ -32655,8 +32576,8 @@ var aiService;
      * millisecondsLimit is a time limit, and maxDepth is a depth limit.
      */
     function createComputerMove(move) {
-        console.debug('move!', move);
-        return (move, move.turnIndexAfterMove, chooseFromPossibleMoves(move.stateAfterMove, move.turnIndexAfterMove));
+        console.debug("move!", move);
+        return (move.turnIndexAfterMove, chooseFromPossibleMoves(move.stateAfterMove, move.turnIndexAfterMove));
     }
     aiService.createComputerMove = createComputerMove;
 })(aiService || (aiService = {}));

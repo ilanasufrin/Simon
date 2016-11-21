@@ -1,9 +1,9 @@
-describe('aiService', function () {
-    describe('chooseFromPossibleMoves', function () {
+describe("aiService", function () {
+    describe("chooseFromPossibleMoves", function () {
         var state;
         var turnIndexBeforeMove;
         var delta = 3;
-        it('returns a valid move', function () {
+        it("returns a valid move", function () {
             state = {
                 expectedSequence: [3, 0],
                 playerSequence: [],
@@ -19,10 +19,10 @@ describe('aiService', function () {
             expect(choice.stateAfterMove.expectedSequence).toBeDefined();
         });
     });
-    describe('createComputerMove', function () {
+    describe("createComputerMove", function () {
         var move;
         var delta = 3;
-        it('returns a valid move', function () {
+        it("returns a valid move", function () {
             move = {
                 endMatchScores: [0, 1],
                 turnIndexAfterMove: 1,
@@ -44,10 +44,10 @@ describe('aiService', function () {
             });
         });
     });
-    describe('findComputerMove', function () {
+    describe("findComputerMove", function () {
         var move;
         var delta = 3;
-        it('returns the move that the computer player should do for the given state in the passed-in move.', function () {
+        it("returns the move that the computer player should do for the given state in the passed-in move.", function () {
             move = {
                 endMatchScores: [0, 1],
                 turnIndexAfterMove: 1,
