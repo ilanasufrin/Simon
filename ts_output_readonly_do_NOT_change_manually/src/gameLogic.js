@@ -28,8 +28,6 @@ var gameLogic;
     }
     gameLogic.getInitialState = getInitialState;
     function checkSequenceMatchesExpected(currentState) {
-        console.log("checking sequence");
-        console.log(currentState);
         for (var i = 0; i < currentState.playerSequence.length; i++) {
             if (currentState.expectedSequence[i] !== currentState.playerSequence[i]) {
                 return false;
@@ -41,20 +39,14 @@ var gameLogic;
     function addToExpectedSequence(currentState) {
         var newColor = Math.floor(Math.random() * 4);
         currentState.expectedSequence.push(newColor);
-        console.log("returning new color", newColor);
         return newColor;
     }
     gameLogic.addToExpectedSequence = addToExpectedSequence;
     // if there is newly a loss, return the index of whoever just lost
     function getWinner(currentState, turnIndexOfMove) {
-        console.log("checking winner");
-        console.log(currentState);
         if (!checkSequenceMatchesExpected(currentState)) {
-            console.log("there is a winner");
-            console.log("this is the loser", turnIndexOfMove);
             return 1 - turnIndexOfMove;
         }
-        console.log("no winner");
         return -1; // no winner
     }
     gameLogic.getWinner = getWinner;
@@ -62,12 +54,10 @@ var gameLogic;
      * Returns the move that should be performed when player
      * with index turnIndexBeforeMove adds a move to their sequence.
      */
-    function createMove(stateBeforeMove, color, turnIndexBeforeMove) {
+    function createMove(stateBeforeMove, color, currentUpdateUI) {
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
-        log.info("state passed into createMove");
-        log.info(stateBeforeMove);
         var nextStatus = GameStatus.AWAITING_INPUT;
         var sequence1 = stateBeforeMove.expectedSequence;
         var sequence2 = stateBeforeMove.playerSequence;
@@ -75,6 +65,7 @@ var gameLogic;
         var sequence2AfterMove = angular.copy(sequence2);
         stateBeforeMove.playerSequence.push(color);
         sequence2AfterMove.push(color);
+        var turnIndexBeforeMove = currentUpdateUI.move.turnIndexAfterMove;
         var winner = getWinner(stateBeforeMove, turnIndexBeforeMove);
         var endMatchScores;
         var turnIndexAfterMove;
@@ -82,21 +73,22 @@ var gameLogic;
             // Game over.
             nextStatus = GameStatus.ENDED;
             turnIndexAfterMove = -1;
-            endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
+            endMatchScores = [];
+            for (var i = 0; i < currentUpdateUI.numberOfPlayers; i++) {
+                endMatchScores.push(0);
+            }
         }
         else {
             // Game continues. Now it"s the opponent"s turn (the turn switches from 0 to 1 and 1 to 0).
             // clear the player"s sequence so we can start the pattern over
             // but only if the player has submitted enough colors to make a full sequence
             if (sequence1AfterMove.length === sequence2AfterMove.length) {
-                log.info("submitted a full pattern, clearing");
                 sequence2AfterMove = [];
                 // add a new color for the next round
                 var newColor = addToExpectedSequence(stateBeforeMove);
-                console.log("next color in sequence", newColor);
                 sequence1AfterMove.push(newColor);
                 // switch players, but only once a full turn is completed
-                turnIndexAfterMove = 1 - turnIndexBeforeMove;
+                turnIndexAfterMove = (turnIndexBeforeMove + 1) % currentUpdateUI.numberOfPlayers;
                 nextStatus = GameStatus.AWAITING_NEXT_SEQUENCE_START;
             }
             else {
@@ -117,7 +109,8 @@ var gameLogic;
     gameLogic.createMove = createMove;
     function createInitialMove() {
         return {
-            endMatchScores: null, turnIndexAfterMove: 0,
+            endMatchScores: null,
+            turnIndexAfterMove: 0,
             stateAfterMove: getInitialState()
         };
     }

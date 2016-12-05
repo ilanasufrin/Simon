@@ -14,16 +14,43 @@ var game;
         translate.setLanguage("en");
         // log.log("Translation of "GAME_OVER" is " + translate("GAME_OVER"));
         resizeGameAreaService.setWidthToHeight(1);
+        // Note that for playAgainstTheComputer mode the number of players is always set to 1.
         moveService.setGame({
             minNumberOfPlayers: 2,
             maxNumberOfPlayers: 2,
             checkMoveOk: gameLogic.checkMoveOk,
             updateUI: updateUI,
-            gotMessageFromPlatform: null
+            communityUI: function (_) { },
+            getStateForOgImage: null
         });
         game.state = gameLogic.getInitialState();
+        postMessage({ gameReady: true }, "*");
     }
     game.init = init;
+    function isOver() {
+        return game.state.status === GameStatus.ENDED;
+    }
+    game.isOver = isOver;
+    function showGameOverMsg() {
+        return translate("GAME_OVER", {});
+    }
+    game.showGameOverMsg = showGameOverMsg;
+    function showPlayerIndicators() {
+        return currentUpdateUI && currentUpdateUI.playMode === "passAndPlay";
+    }
+    game.showPlayerIndicators = showPlayerIndicators;
+    function getPlayerIndices() {
+        if (!currentUpdateUI)
+            return [];
+        return currentUpdateUI.playersInfo.map(function (_, i) { return i; });
+    }
+    game.getPlayerIndices = getPlayerIndices;
+    function shouldHighlightPlayer(playerIndex) {
+        if (!currentUpdateUI)
+            return false;
+        return currentUpdateUI.yourPlayerIndex === playerIndex;
+    }
+    game.shouldHighlightPlayer = shouldHighlightPlayer;
     function registerServiceWorker() {
         if ("serviceWorker" in navigator) {
             var n = navigator;
@@ -36,7 +63,11 @@ var game;
         }
     }
     function getTranslations() {
-        return {};
+        return {
+            GAME_OVER: {
+                en: "Game Over!",
+            }
+        };
     }
     function getBtnClasses(currentStatus) {
         var classes = ["play-btn__icon", "fa"];
@@ -60,23 +91,20 @@ var game;
         switch (game.state.status) {
             case GameStatus.AWAITING_INPUT:
             case GameStatus.PLAYING_SEQUENCE:
-            case GameStatus.ENDED:
                 return true;
             default:
                 return false;
         }
     }
     game.isButtonDisabled = isButtonDisabled;
-    function isCanvasDisabled() {
-        switch (game.state.status) {
-            case GameStatus.PLAYING_SEQUENCE:
-            case GameStatus.ENDED:
-                return true;
-            default:
-                return false;
-        }
+    function arePadsDisabled() {
+        return game.state.status !== GameStatus.AWAITING_INPUT;
     }
-    game.isCanvasDisabled = isCanvasDisabled;
+    game.arePadsDisabled = arePadsDisabled;
+    function handleBtnClick() {
+        animateSequence(game.state, true);
+    }
+    game.handleBtnClick = handleBtnClick;
     function updateUI(updates) {
         didMakeMove = false; // Only one move per updateUI
         currentUpdateUI = updates;
@@ -88,14 +116,10 @@ var game;
         }
         else {
             game.state = updates.move.stateAfterMove;
-            // We calculate the AI move only after the animation finishes,
-            // because if we call aiService now
-            // then the animation will be paused until the javascript finishes.
-            animationEndedTimeout = $timeout(animationEndedCallback, 500);
         }
     }
     game.updateUI = updateUI;
-    function animateSequence(state, human, shouldPlayComputer) {
+    function animateSequence(state, human) {
         state.status = GameStatus.PLAYING_SEQUENCE;
         var playBtn = document.querySelector(".play-btn");
         var animationIntervalId = 0;
@@ -106,11 +130,6 @@ var game;
             animate = function () {
                 if (sequenceFinished()) {
                     endAnimation(animationIntervalId);
-                    if (typeof shouldPlayComputer !== "undefined") {
-                        setTimeout(function () {
-                            animateSequence(state, false, undefined);
-                        }, 1000);
-                    }
                 }
                 else {
                     pickElement(state.expectedSequence[i], true);
@@ -138,7 +157,6 @@ var game;
     game.animateSequence = animateSequence;
     function endAnimation(animationIntervalId) {
         clearInterval(animationIntervalId);
-        // ??? TODO ask Ilana about this
         $rootScope.$apply(function () {
             if (gameLogic.getWinner(game.state, 1) >= 0) {
                 // TODO: Refactor the ending logic into the ng elements
@@ -193,24 +211,11 @@ var game;
             myEl.removeClass("unHighlighted");
         }, 1500);
     }
-    function animationEndedCallback() {
-        log.info("Animation ended");
-        maybeSendComputerMove();
-    }
     function clearAnimationTimeout() {
         if (animationEndedTimeout) {
             $timeout.cancel(animationEndedTimeout);
             animationEndedTimeout = null;
         }
-    }
-    function maybeSendComputerMove() {
-        if (!isComputerTurn())
-            return;
-        console.debug("currentUpdateUI.move", currentUpdateUI.move);
-        var move = aiService.findComputerMove(currentUpdateUI.move);
-        log.info("Computer move: ", move);
-        animateSequence(game.state, true, true);
-        makeMove(move);
     }
     function makeMove(move) {
         console.log("trying to make a move", move);
@@ -257,7 +262,7 @@ var game;
         var nextMove = null;
         try {
             log.info("state on click", game.state);
-            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI.move.turnIndexAfterMove);
+            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI);
         }
         catch (e) {
             log.info(["there was a problem choosing the color:", color]);

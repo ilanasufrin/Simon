@@ -30,23 +30,32 @@
   <audio id="simonSound3" src="./exports/simonSound3.mp3" preload="auto"></audio>
 
   <main id="gameArea">
-    <div class="canvas" ng-class="{'noPointer': game.isCanvasDisabled()}">
+    <div class="canvas">
       <!-- TODO a11y -->
       <button type="button" class="play-btn"
               ng-disabled="game.isButtonDisabled()"
-              ng-click="game.animateSequence(game.state, true)">
+              ng-click="game.handleBtnClick()"
+              ng-hide="game.isOver()">
         <i aria-hidden="true" ng-class="game.getBtnClasses(game.state.status)"></i>
       </button>
-      <div class="row">
+      <span id="game-over" ng-show="game.isOver()">
+        {{game.showGameOverMsg()}}
+      </span>
+      <div class="row" ng-class="{'noPointer': game.arePadsDisabled()}">
         <div class="pad green" tabindex="0" ng-click="game.cellClicked(0)"><div id="greenRing"></div></div>
         <div class="pad red" tabindex="0" ng-click="game.cellClicked(1)"><div id="redRing"></div></div>
       </div>
-      <div class="row">
+      <div class="row" ng-class="{'noPointer': game.arePadsDisabled()}">
         <div class="pad yellow" tabindex="0" ng-click="game.cellClicked(2)"><div id="yellowRing"></div></div>
         <div class="pad blue" tabindex="0" ng-click="game.cellClicked(3)"><div id="blueRing"></div></div>
       </div>
     </div>
   </main>
+  <div id="player-indicators" ng-show="game.showPlayerIndicators()">
+    <span class="player-indicator" ng-repeat="i in game.getPlayerIndices()">
+      <i class="fa fa-user" data-player-idx="{{i + 1}}" ng-class="{'active': game.shouldHighlightPlayer(i)}"></i>
+    </span>
+  </div>
 
   <script charset="utf-8">
     // TODO REFACTOR 👏🏻 THIS 👏🏻 OUT 👏🏻

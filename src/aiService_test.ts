@@ -1,84 +1,48 @@
-describe("aiService", function() {
-  describe("chooseFromPossibleMoves", function() {
-    let state: IState;
-    let turnIndexBeforeMove: number;
-    let delta: number = 3;
-
-    it("returns a valid move", function() {
-      state = {
-        expectedSequence: [3, 0],
-        playerSequence: [],
-        delta: delta
-      };
-
-      turnIndexBeforeMove = 0;
-
-      let choice = aiService.chooseFromPossibleMoves(state, turnIndexBeforeMove);
-
-      expect(choice.endMatchScores).toBeDefined();
-      expect(choice.turnIndexAfterMove).toEqual(jasmine.any(Number));
-      expect(choice.stateAfterMove).toBeDefined();
-      expect(choice.stateAfterMove.delta).toEqual(jasmine.any(Number));
-      expect(choice.stateAfterMove.playerSequence).toBeDefined();
-      expect(choice.stateAfterMove.expectedSequence).toBeDefined();
+describe("aiService", () => {
+  describe("chooseFromPossibleMoves", () => {
+    beforeEach(() => {
+      spyOn(gameLogic, "createMove").and.callFake((_: any, num: number, __: any) => ({
+        num
+      }));
     });
-  });
 
-  describe("createComputerMove", function() {
-    let move: IMove;
-    let delta = 3;
-
-    it("returns a valid move", function() {
-      move = {
-        endMatchScores: [0, 1],
-        turnIndexAfterMove: 1,
-        stateAfterMove: {
-          expectedSequence: [3, 0],
-          playerSequence: [],
-          delta: delta
-        }
+    it("chooses a move at random from a list of possible moves using the given state and updateUI", () => {
+      spyOn(Math, "random").and.returnValue(0.5);
+      const state: any = {
+        delta: 100
       };
-
-      let compMove = aiService.createComputerMove(move);
-      expect(move).toEqual(
-        {
-          endMatchScores: [0, 1],
-          turnIndexAfterMove: 1,
-          stateAfterMove: {
-            expectedSequence: [3, 0],
-            playerSequence: [jasmine.any(Number)],
-            delta: delta
-          }
-        });
+      const updateUI: any = {};
+      const move: any = aiService.chooseFromPossibleMoves(state, updateUI);
+      expect(move.num).toEqual(state.delta);
+      expect(gameLogic.createMove).toHaveBeenCalledWith(state, state.delta, updateUI);
     });
-  });
 
-  describe("findComputerMove", function() {
-    let move: IMove;
-    let delta: number = 3;
-
-    it("returns the move that the computer player should do for the given state in the passed-in move.", function() {
-      move = {
-        endMatchScores: [0, 1],
-        turnIndexAfterMove: 1,
-        stateAfterMove: {
-          expectedSequence: [3, 0],
-          playerSequence: [],
-          delta: delta
-        }
+    it("chooses from 0-3 when given the when given one of the first 4 indices", () => {
+      spyOn(Math, "random").and.returnValue(0.125);
+      const state: any = {
+        delta: 100
       };
+      const updateUI: any = {};
+      const move: any = aiService.chooseFromPossibleMoves(state, updateUI);
+      expect(move.num).toEqual(1);
+      expect(gameLogic.createMove).toHaveBeenCalledWith(state, 1, updateUI);
+    });
 
-      let compMove = aiService.findComputerMove(move);
-      expect(move).toEqual(
-        {
-          endMatchScores: [0, 1],
-          turnIndexAfterMove: 1,
-          stateAfterMove: {
-            expectedSequence: [3, 0],
-            playerSequence: [jasmine.any(Number)],
-            delta: delta
-          }
-        });
+    it("biases towards state.delta", () => {
+      spyOn(Math, "random").and.returnValue(0.5);
+      const state: any = {
+        delta: 100
+      };
+      const updateUI: any = {};
+
+      const move: any = aiService.chooseFromPossibleMoves(state, updateUI);
+      expect(move.num).toEqual(state.delta);
+      expect(gameLogic.createMove).toHaveBeenCalledWith(state, state.delta, updateUI);
+
+      (<jasmine.Spy>Math.random).and.returnValue(0.75);
+      const move2: any = aiService.chooseFromPossibleMoves(state, updateUI);
+      expect(move.num).toEqual(state.delta);
+      expect(gameLogic.createMove).toHaveBeenCalledWith(state, state.delta, updateUI);
     });
   });
 });

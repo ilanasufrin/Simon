@@ -23,14 +23,39 @@ namespace game {
     translate.setLanguage("en");
     // log.log("Translation of "GAME_OVER" is " + translate("GAME_OVER"));
     resizeGameAreaService.setWidthToHeight(1);
+    // Note that for playAgainstTheComputer mode the number of players is always set to 1.
     moveService.setGame({
       minNumberOfPlayers: 2,
       maxNumberOfPlayers: 2,
       checkMoveOk: gameLogic.checkMoveOk, // this is only here because the turnBasedService complains otherwise
       updateUI: updateUI,
-      gotMessageFromPlatform: null
+      communityUI: (_: ICommunityUI) => {},
+      getStateForOgImage: null
     });
     state = gameLogic.getInitialState();
+    postMessage({gameReady: true}, "*");
+  }
+
+  export function isOver(): boolean {
+    return game.state.status === GameStatus.ENDED;
+  }
+
+  export function showGameOverMsg(): string {
+    return translate("GAME_OVER", {});
+  }
+
+  export function showPlayerIndicators() {
+    return currentUpdateUI && currentUpdateUI.playMode === "passAndPlay";
+  }
+
+  export function getPlayerIndices(): number[] {
+    if (!currentUpdateUI) return [];
+    return currentUpdateUI.playersInfo.map((_, i) => i);
+  }
+
+  export function shouldHighlightPlayer(playerIndex: number): boolean {
+    if (!currentUpdateUI) return false;
+    return currentUpdateUI.yourPlayerIndex === playerIndex;
   }
 
   function registerServiceWorker() {
@@ -47,10 +72,9 @@ namespace game {
 
   function getTranslations(): Translations {
     return {
-      // GAME_OVER: {
-      //     en: "GAME OVER",
-      //     fr: "JEU TERMINÉ",
-      // }
+      GAME_OVER: {
+          en: "Game Over!",
+      }
     };
   }
 
@@ -74,21 +98,18 @@ namespace game {
     switch (state.status) {
       case GameStatus.AWAITING_INPUT:
       case GameStatus.PLAYING_SEQUENCE:
-      case GameStatus.ENDED:
         return true;
       default:
         return false;
     }
   }
 
-  export function isCanvasDisabled(): boolean {
-    switch (state.status) {
-      case GameStatus.PLAYING_SEQUENCE:
-      case GameStatus.ENDED:
-        return true;
-      default:
-        return false;
-    }
+  export function arePadsDisabled(): boolean {
+    return state.status !== GameStatus.AWAITING_INPUT;
+  }
+
+  export function handleBtnClick() {
+    animateSequence(state, true);
   }
 
   export function updateUI(updates: IUpdateUI): void {
@@ -100,14 +121,10 @@ namespace game {
       if (isMyTurn()) makeMove(gameLogic.createInitialMove());
     } else {
       state = updates.move.stateAfterMove;
-      // We calculate the AI move only after the animation finishes,
-      // because if we call aiService now
-      // then the animation will be paused until the javascript finishes.
-      animationEndedTimeout = $timeout(animationEndedCallback, 500);
     }
   }
 
-  export function animateSequence(state: IState, human: boolean, shouldPlayComputer: boolean) {
+  export function animateSequence(state: IState, human: boolean) {
     state.status = GameStatus.PLAYING_SEQUENCE;
     let playBtn = document.querySelector(".play-btn");
     let animationIntervalId = 0;
@@ -120,11 +137,6 @@ namespace game {
       animate = function() {
         if (sequenceFinished()) {
           endAnimation(animationIntervalId);
-          if (typeof shouldPlayComputer !== "undefined") {
-            setTimeout(function() {
-              animateSequence(state, false, undefined);
-            }, 1000);
-          }
         } else {
           pickElement(state.expectedSequence[i], true);
           i++;
@@ -152,7 +164,6 @@ namespace game {
   function endAnimation(animationIntervalId: number) {
     clearInterval(animationIntervalId);
 
-    // ??? TODO ask Ilana about this
     $rootScope.$apply(() => {
       if (gameLogic.getWinner(state, 1) >= 0) {
         // TODO: Refactor the ending logic into the ng elements
@@ -212,25 +223,11 @@ namespace game {
     }, 1500);
   }
 
-  function animationEndedCallback() {
-    log.info("Animation ended");
-    maybeSendComputerMove();
-  }
-
   function clearAnimationTimeout() {
     if (animationEndedTimeout) {
       $timeout.cancel(animationEndedTimeout);
       animationEndedTimeout = null;
     }
-  }
-
-  function maybeSendComputerMove() {
-    if (!isComputerTurn()) return;
-    console.debug("currentUpdateUI.move", currentUpdateUI.move);
-    let move = aiService.findComputerMove(currentUpdateUI.move);
-    log.info("Computer move: ", move);
-    animateSequence(state, true, true);
-    makeMove(move);
   }
 
   function makeMove(move: IMove) {
@@ -285,8 +282,7 @@ namespace game {
     let nextMove: IMove = null;
     try {
       log.info("state on click", state);
-      nextMove = gameLogic.createMove(
-        state, color, currentUpdateUI.move.turnIndexAfterMove);
+      nextMove = gameLogic.createMove(state, color, currentUpdateUI);
     } catch (e) {
       log.info(["there was a problem choosing the color:", color]);
       return;

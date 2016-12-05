@@ -1,201 +1,192 @@
-describe("Simon gameLogic", function() {
+describe("Simon gameLogic", () => {
+  describe("getInitialState", () => {
+    it("returns a properly configured initial state object", () => {
+      spyOn(Math, "random").and.returnValue(0.85);
+      expect(gameLogic.getInitialState()).toEqual({
+        status: GameStatus.IDLE,
+        expectedSequence: [3],
+        playerSequence: [],
+        delta: null
+      });
+    });
+  });
 
-  describe("createInitialMove", function() {
-    it("is blank except for one expected move", function() {
-      const initialMove: { [_: string]: any } = {
+  describe("checkSequenceMatchesExpected", () => {
+    it("returns true when playerSequence matches expectedSequence", () => {
+      const state: any = {
+        playerSequence: [0, 1, 2, 3],
+        expectedSequence: [0, 1, 2, 3]
+      };
+      expect(gameLogic.checkSequenceMatchesExpected(state)).toBe(true);
+    });
+
+    it("returns false when playerSequence does not match expectedSequence", () => {
+      const state: any = {
+        playerSequence: [0, 1, 2, 3],
+        expectedSequence: [0, 1, 3, 2]
+      };
+      expect(gameLogic.checkSequenceMatchesExpected(state)).toBe(false);
+    });
+  });
+
+  describe("addToExpectedSequence", () => {
+    it("adds a random number to the state's expectedSequence", () => {
+      const state: any = {
+        expectedSequence: [3]
+      };
+      spyOn(Math, "random").and.returnValue(0.26);
+      gameLogic.addToExpectedSequence(state);
+      expect(state.expectedSequence).toEqual([3, 1]);
+    });
+  });
+
+  describe("getWinner", () => {
+    it("returns the index of whomevers turn it is not when there is a winner", () => {
+      const state: any = {
+        expectedSequence: [0, 1, 2, 3],
+        playerSequence: [0, 1, 3, 2]
+      };
+      expect(gameLogic.getWinner(state, 1)).toEqual(0);
+      expect(gameLogic.getWinner(state, 0)).toEqual(1);
+    });
+
+    it("returns -1 if there is not yet a winner", () => {
+      const state: any = {
+        expectedSequence: [0, 1, 2, 3],
+        playerSequence: [0, 1, 2, 3]
+      };
+      expect(gameLogic.getWinner(state, 1)).toEqual(-1);
+      expect(gameLogic.getWinner(state, 0)).toEqual(-1);
+    });
+  });
+
+  describe("createMove", () => {
+    let stateBeforeMove: any;
+    let color: number;
+    let currentUpdateUI: any;
+
+    beforeEach(() => {
+      color = 0;
+      currentUpdateUI = {
+        numberOfPlayers: 2,
+        move: {
+          turnIndexAfterMove: 1
+        }
+      };
+    });
+
+    describe("when there is a winner", () => {
+      beforeEach(() => {
+        stateBeforeMove = {
+          expectedSequence: [0, 1],
+          playerSequence: [0]
+        };
+      });
+
+      it("sets endMatchScores to an array of 0 for every player (shrug)", () => {
+        const {endMatchScores} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+        expect(endMatchScores).toEqual([0, 0]);
+      });
+
+      it("sets turnIndexAfterMove to -1", () => {
+        const {turnIndexAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+        expect(turnIndexAfterMove).toEqual(-1);
+      });
+
+      it("sets stateAfterMove to reflect the win", () => {
+        const {stateAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+        expect(stateAfterMove).toEqual({
+          status: GameStatus.ENDED,
+          delta: color,
+          playerSequence: [0, 0],
+          expectedSequence: stateBeforeMove.expectedSequence
+        });
+      });
+    });
+
+    describe("when there is no winner", () => {
+      beforeEach(() => {
+        stateBeforeMove = {
+          playerSequence: [],
+          expectedSequence: [0, 1]
+        };
+        spyOn(Math, "random").and.returnValue(0.75);
+      });
+
+      it("sets endsMatchScores to null", () => {
+        const {endMatchScores} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+        expect(endMatchScores).toBeNull();
+      });
+
+      describe("when the playerSequence is the same length as the expectedSequence", () => {
+        beforeEach(() => {
+          stateBeforeMove.playerSequence.push(0);
+          color = 1;
+        });
+
+        it("flips the turnIndexAfterMove", () => {
+          const {turnIndexAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+          expect(turnIndexAfterMove).toEqual(0);
+        });
+
+        it("updates the stateAfterMove to reflect the start of a new sequence", () => {
+          const {stateAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+          expect(stateAfterMove).toEqual({
+            status: GameStatus.AWAITING_NEXT_SEQUENCE_START,
+            delta: color,
+            playerSequence: [],
+            expectedSequence: [0, 1, 3]
+          });
+        });
+      });
+
+      describe("when the playerSequence is not the same length as the expectedSequence", () => {
+        it("keeps turnIndexAfterMove the same", () => {
+          const {turnIndexAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+          expect(turnIndexAfterMove).toEqual(1);
+        });
+
+        it("updates stateAfterMove to reflect the new addition", () => {
+          const {stateAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+          expect(stateAfterMove).toEqual({
+            expectedSequence: [0, 1],
+            playerSequence: [0],
+            status: GameStatus.AWAITING_INPUT,
+            delta: color
+          });
+        });
+      });
+    });
+
+    describe("when no state is given", () => {
+      beforeEach(() => {
+        spyOn(Math, "random").and.returnValue(0.01);
+        stateBeforeMove = null;
+      });
+
+      it("uses the initial state as stateBeforeMove", () => {
+        const {stateAfterMove} = gameLogic.createMove(stateBeforeMove, color, currentUpdateUI);
+        expect(stateAfterMove).toEqual({
+          status: GameStatus.AWAITING_NEXT_SEQUENCE_START,
+          delta: 0,
+          playerSequence: [],
+          expectedSequence: [0, 0]
+        });
+      });
+    });
+  });
+
+  describe("createInitialMove", () => {
+    it("returns the initial move", () => {
+      expect(gameLogic.createInitialMove()).toEqual({
         endMatchScores: null,
         turnIndexAfterMove: 0,
-        stateAfterMove: {
-          expectedSequence: [jasmine.any(Number)],
-          playerSequence: [],
-          delta: null
-        }
-      };
-
-      expect(gameLogic.createInitialMove()).toEqual(initialMove);
+        stateAfterMove: gameLogic.getInitialState()
+      });
     });
   });
 
-  describe("addToExpectedSequence", function() {
-    let currentState: IState;
-    let delta: number;
-
-    it("adds one to color to the sequence", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [],
-        delta: delta
-      };
-
-      let lengthBefore = currentState.expectedSequence.length;
-      gameLogic.addToExpectedSequence(currentState);
-
-      expect(lengthBefore).toEqual(2);
-      expect(currentState.expectedSequence.length).toEqual(3);
-    });
-  });
-
-  describe("checkSequenceMatchesExpected", function() {
-    let currentState: IState;
-    let delta: number;
-
-    it("returns true when the player sequence is empty", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [],
-        delta: delta
-      };
-
-      expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
-    });
-
-    it("returns true when the player sequence matches the expected sequence so far", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [3],
-        delta: delta
-      };
-
-      expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(true);
-    });
-
-    it("returns false when the player sequence is different than expected", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [1],
-        delta: delta
-      };
-
-      expect(gameLogic.checkSequenceMatchesExpected(currentState)).toEqual(false);
-    });
-  });
-
-  describe("getWinner", function() {
-    let currentState: IState;
-    let turnIndex: number;
-    let delta: number;
-
-    it("returns -1 if nobody has lost yet", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [],
-        delta: delta
-      };
-
-      turnIndex = 1;
-
-      expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(-1);
-    });
-
-    it("returns 1 if player 0 has lost", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [1, 1],
-        delta: delta
-      };
-
-      turnIndex = 0;
-
-      expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(1);
-    });
-
-    it("returns 0 if player 1 has lost", function() {
-      currentState = {
-        expectedSequence: [3, 0],
-        playerSequence: [1, 1],
-        delta: delta
-      };
-
-      turnIndex = 1;
-
-      expect(gameLogic.getWinner(currentState, turnIndex)).toEqual(0);
-    });
-  });
-
-  describe("createMove", function() {
-    let stateBeforeMove: IState;
-    let color: number;
-    let turnIndexBeforeMove: number;
-    let delta = 3;
-
-    it("does not set endMatchScores if there is no winner", function() {
-      stateBeforeMove = {
-        expectedSequence: [3, 0],
-        playerSequence: [],
-        delta: delta
-      };
-
-      let answer = gameLogic.createMove(stateBeforeMove, color, turnIndexBeforeMove);
-      expect(answer).toEqual(
-        {
-          endMatchScores: [0, 0],
-          turnIndexAfterMove: -1,
-          stateAfterMove: {
-            delta: undefined,
-            playerSequence: [undefined],
-            expectedSequence: [3, 0]
-          }
-        }
-      );
-    });
-
-    it("sets endMatchScores if there is no winner this round", function() {
-      stateBeforeMove = {
-        expectedSequence: [2, 1],
-        playerSequence: [],
-        delta: delta
-      };
-
-      let answer = gameLogic.createMove(stateBeforeMove, color, turnIndexBeforeMove);
-      expect(answer).toEqual(
-        {
-          endMatchScores: [0, 0],
-          turnIndexAfterMove: -1,
-          stateAfterMove: {
-            delta: undefined,
-            playerSequence: [undefined],
-            expectedSequence: [2, 1]
-          }
-        }
-      );
-    });
-
-    it("clears the playerSequence and adds to the expectedSequence after a full successful turn", function() {
-      stateBeforeMove = {
-        expectedSequence: [2, 3],
-        playerSequence: [2],
-        delta: delta
-      };
-
-      let answer = gameLogic.createMove(stateBeforeMove, 3, turnIndexBeforeMove);
-
-      expect(answer.stateAfterMove.playerSequence.length).toBe(0);
-      expect(answer.stateAfterMove.expectedSequence.length).toBe(3);
-    });
-
-    it("if stateBeforeMove is falsy it calls getInitialState", function() {
-      stateBeforeMove = null;
-
-      let answer = gameLogic.createMove(stateBeforeMove, color, turnIndexBeforeMove);
-      expect(answer).toEqual(
-        {
-          endMatchScores: [0, 0],
-          turnIndexAfterMove: -1,
-          stateAfterMove: {
-            delta: undefined,
-            playerSequence: [undefined],
-            expectedSequence: [jasmine.any(Number)]
-          }
-        }
-      );
-    });
-  });
-
-  describe("checkMoveOk", function() {
-    let stateTransition: IStateTransition;
-    it("does nothing at the moment", function() {
-      gameLogic.checkMoveOk(stateTransition);
-      expect(true).toBe(true); // this is obviously just a placeholder
-    });
+  describe("checkMoveOk", () => {
+    it("is a NOP", () => expect(gameLogic.checkMoveOk(<any>{})).toBeUndefined());
   });
 });

@@ -31234,7 +31234,7 @@ var gamingPlatform;
             };
         }
         stateService.getMatchState = getMatchState;
-        // endMatchScores can be null or undefined (and in the first move in auto-match, it's first null and then undefined, 
+        // endMatchScores can be null or undefined (and in the first move in auto-match, it's first null and then undefined,
         // so we used to send the same updateUI twice).
         // Now, if anything is undefined, then I set it to null.
         function getNullIfUndefined(obj) {
@@ -31412,22 +31412,16 @@ var gamingPlatform;
             if (!move || !move.length) {
                 throw new Error("Game called makeMove with an empty move=" + move);
             }
-            if (isLocalTesting) {
-                // I'm using $timeout so it will be more like production (where we use postMessage),
-                // so the updateUI response is not sent immediately).
-                gamingPlatform.$timeout(function () {
-                    gamingPlatform.stateService.makeMove(move);
-                }, 10);
-            }
-            else {
-                gamingPlatform.messageService.sendMessage({ makeMove: move, lastUpdateUI: lastUpdateUI });
-            }
+            gamingPlatform.$timeout(function () {
+                gamingPlatform.stateService.makeMove(move);
+            }, 10);
             lastUpdateUI = null; // to make sure you don't call makeMove until you get the next updateUI.
         }
         gameService.makeMove = makeMove;
         function getPlayers() {
             var playersInfo = [];
-            var actualNumberOfPlayers = gamingPlatform.stateService.randomFromTo(game.minNumberOfPlayers, game.maxNumberOfPlayers + 1);
+            var actualNumberOfPlayers = gameService.playMode === "playAgainstTheComputer" ?
+                1 : gamingPlatform.stateService.randomFromTo(game.minNumberOfPlayers, game.maxNumberOfPlayers + 1);
             for (var i = 0; i < actualNumberOfPlayers; i++) {
                 var playerId = gameService.playMode === "onlyAIs" ||
                     i !== 0 && gameService.playMode === "playAgainstTheComputer" ?
@@ -31446,7 +31440,7 @@ var gamingPlatform;
             }
             didCallSetGame = true;
             var playersInfo = getPlayers();
-            if (isLocalTesting) {
+            // if (isLocalTesting) {
                 if (w.game) {
                     w.game.isHelpModalShown = true;
                 }
@@ -31455,53 +31449,54 @@ var gamingPlatform;
                 gamingPlatform.stateService.setPlayMode(gameService.playMode);
                 gamingPlatform.stateService.setPlayers(playersInfo);
                 gamingPlatform.stateService.sendUpdateUi();
-            }
-            else {
-                gamingPlatform.messageService.addMessageListener(function (message) {
-                    if (message.isMoveOk) {
-                        var isMoveOkResult = game.isMoveOk(message.isMoveOk);
-                        if (isMoveOkResult !== true) {
-                            isMoveOkResult = { result: isMoveOkResult, isMoveOk: message.isMoveOk };
-                        }
-                        gamingPlatform.messageService.sendMessage({ isMoveOkResult: isMoveOkResult });
-                    }
-                    else if (message.updateUI) {
-                        updateUI(message.updateUI);
-                    }
-                    else if (message.setLanguage) {
-                        gamingPlatform.translate.setLanguage(message.setLanguage.language, message.setLanguage.codeToL10N);
-                        // we need to ack this message to the platform so the platform will make the game-iframe visible
-                        // (The platform waited until the game got the l10n.)
-                        // Using setTimeout to give time for angular to refresh it's UI (the default was in English)
-                        setTimeout(function () {
-                            gamingPlatform.messageService.sendMessage({ setLanguageResult: true });
-                        });
-                    }
-                    else if (message.getGameLogs) {
-                        // To make sure students don't get:
-                        // Error: Uncaught DataCloneError: Failed to execute 'postMessage' on 'Window': An object could not be cloned.
-                        // I serialize to string and back.
-                        var plainPojoLogs = angular.fromJson(angular.toJson(gamingPlatform.log.getLogs()));
-                        setTimeout(function () {
-                            gamingPlatform.messageService.sendMessage({ getGameLogsResult: plainPojoLogs });
-                        });
-                    }
-                    else if (message.getStateForOgImage) {
-                        gamingPlatform.messageService.sendMessage({ sendStateForOgImage: game.getStateForOgImage() });
-                    }
-                    else if (message.passMessageToGame) {
-                        var msgFromPlatform = message.passMessageToGame;
-                        if (msgFromPlatform.SHOW_GAME_INSTRUCTIONS && w.game) {
-                            w.game.isHelpModalShown = !w.game.isHelpModalShown;
-                        }
-                        if (game.gotMessageFromPlatform)
-                            game.gotMessageFromPlatform(msgFromPlatform);
-                    }
-                });
-                // I wanted to delay sending gameReady until window.innerWidth and height are not 0,
-                // but they will stay 0 (on ios) until we send gameReady (because platform will hide the iframe)
                 gamingPlatform.messageService.sendMessage({ gameReady: {} });
-            }
+            // }
+            // else {
+            //     gamingPlatform.messageService.addMessageListener(function (message) {
+            //         if (message.isMoveOk) {
+            //             var isMoveOkResult = game.isMoveOk(message.isMoveOk);
+            //             if (isMoveOkResult !== true) {
+            //                 isMoveOkResult = { result: isMoveOkResult, isMoveOk: message.isMoveOk };
+            //             }
+            //             gamingPlatform.messageService.sendMessage({ isMoveOkResult: isMoveOkResult });
+            //         }
+            //         else if (message.updateUI) {
+            //             updateUI(message.updateUI);
+            //         }
+            //         else if (message.setLanguage) {
+            //             gamingPlatform.translate.setLanguage(message.setLanguage.language, message.setLanguage.codeToL10N);
+            //             // we need to ack this message to the platform so the platform will make the game-iframe visible
+            //             // (The platform waited until the game got the l10n.)
+            //             // Using setTimeout to give time for angular to refresh it's UI (the default was in English)
+            //             setTimeout(function () {
+            //                 gamingPlatform.messageService.sendMessage({ setLanguageResult: true });
+            //             });
+            //         }
+            //         else if (message.getGameLogs) {
+            //             // To make sure students don't get:
+            //             // Error: Uncaught DataCloneError: Failed to execute 'postMessage' on 'Window': An object could not be cloned.
+            //             // I serialize to string and back.
+            //             var plainPojoLogs = angular.fromJson(angular.toJson(gamingPlatform.log.getLogs()));
+            //             setTimeout(function () {
+            //                 gamingPlatform.messageService.sendMessage({ getGameLogsResult: plainPojoLogs });
+            //             });
+            //         }
+            //         else if (message.getStateForOgImage) {
+            //             gamingPlatform.messageService.sendMessage({ sendStateForOgImage: game.getStateForOgImage() });
+            //         }
+            //         else if (message.passMessageToGame) {
+            //             var msgFromPlatform = message.passMessageToGame;
+            //             if (msgFromPlatform.SHOW_GAME_INSTRUCTIONS && w.game) {
+            //                 w.game.isHelpModalShown = !w.game.isHelpModalShown;
+            //             }
+            //             if (game.gotMessageFromPlatform)
+            //                 game.gotMessageFromPlatform(msgFromPlatform);
+            //         }
+            //     });
+            //     // I wanted to delay sending gameReady until window.innerWidth and height are not 0,
+            //     // but they will stay 0 (on ios) until we send gameReady (because platform will hide the iframe)
+            //     gamingPlatform.messageService.sendMessage({ gameReady: {} });
+            // }
             // Show an empty board to a viewer (so you can't perform moves).
             gamingPlatform.log.info("Passing a 'fake' updateUI message in order to show an empty board to a viewer (so you can NOT perform moves)");
             updateUI({
@@ -31690,7 +31685,7 @@ var gamingPlatform;
          * and it has either a millisecondsLimit or maxDepth field:
          * millisecondsLimit is a time limit, and maxDepth is a depth limit.
          */
-        function alphaBetaDecision(startingState, playerIndex, getNextStates, getStateScoreForIndex0, 
+        function alphaBetaDecision(startingState, playerIndex, getNextStates, getStateScoreForIndex0,
             // If you want to see debugging output in the console, then surf to game.html?debug
             getDebugStateToString, alphaBetaLimits) {
             var move = alphaBetaDecisionMayReturnNull(startingState, playerIndex, getNextStates, getStateScoreForIndex0, getDebugStateToString, alphaBetaLimits);
@@ -31701,7 +31696,7 @@ var gamingPlatform;
             return getNextStates(startingState, playerIndex)[0];
         }
         alphaBetaService.alphaBetaDecision = alphaBetaDecision;
-        function alphaBetaDecisionMayReturnNull(startingState, playerIndex, getNextStates, getStateScoreForIndex0, 
+        function alphaBetaDecisionMayReturnNull(startingState, playerIndex, getNextStates, getStateScoreForIndex0,
             // If you want to see debugging output in the console, then surf to game.html?debug
             getDebugStateToString, alphaBetaLimits) {
             // Checking input
@@ -31777,7 +31772,7 @@ var gamingPlatform;
             return alphaBetaLimits.millisecondsLimit &&
                 new Date().getTime() - startTime > alphaBetaLimits.millisecondsLimit;
         }
-        function getScoreForIndex0(startingState, playerIndex, getNextStates, getStateScoreForIndex0, 
+        function getScoreForIndex0(startingState, playerIndex, getNextStates, getStateScoreForIndex0,
             // If you want to see debugging output in the console, then surf to game.html?debug
             getDebugStateToString, alphaBetaLimits, startTime, depth, alpha, beta) {
             var bestScore = null;
@@ -32102,32 +32097,33 @@ var gamingPlatform;
             gamingPlatform.$interpolate = _interpolate;
             copyNamespaceToWindow();
             gamingPlatform.log.alwaysLog("Finished init of gameServices module; emulatorServicesCompilationDate=", emulatorServicesCompilationDate);
-        }])
-        .factory('$exceptionHandler', function () {
-        function angularErrorHandler(exception, cause) {
-            var errMsg = {
-                gameUrl: '' + window.location,
-                exception: "" + exception,
-                stack: "" + (exception ? exception.stack : "no stack"),
-                cause: cause,
-                gameLogs: gamingPlatform.log.getLogs()
-            };
-            console.error("Game had an exception:\n", exception, " Full error message with logs: ", errMsg);
-            window.alert("Game had an unexpected error. If you know JavaScript, you can look at the console and try to debug it :)");
-            // To make sure students don't get:
-            // Error: Uncaught DataCloneError: Failed to execute 'postMessage' on 'Window': An object could not be cloned.
-            // I serialize to string and back.
-            var plainPojoErr = angular.fromJson(angular.toJson(errMsg));
-            window.parent.postMessage({ emailJavaScriptError: plainPojoErr }, "*");
-        }
-        window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
-            angularErrorHandler(errorObj, 'Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber +
-                ' Column: ' + column);
-        };
-        return angularErrorHandler;
-    });
+        }]);
+    //     .factory('$exceptionHandler', function () {
+    //     function angularErrorHandler(exception, cause) {
+    //         var errMsg = {
+    //             gameUrl: '' + window.location,
+    //             exception: "" + exception,
+    //             stack: "" + (exception ? exception.stack : "no stack"),
+    //             cause: cause,
+    //             gameLogs: gamingPlatform.log.getLogs()
+    //         };
+    //         console.error("Game had an exception:\n", exception, " Full error message with logs: ", errMsg);
+    //         window.alert("Game had an unexpected error. If you know JavaScript, you can look at the console and try to debug it :)");
+    //         // To make sure students don't get:
+    //         // Error: Uncaught DataCloneError: Failed to execute 'postMessage' on 'Window': An object could not be cloned.
+    //         // I serialize to string and back.
+    //         var plainPojoErr = angular.fromJson(angular.toJson(errMsg));
+    //         window.parent.postMessage({ emailJavaScriptError: plainPojoErr }, "*");
+    //     }
+    //     window.onerror = function (errorMsg, url, lineNumber, column, errorObj) {
+    //         angularErrorHandler(errorObj, 'Error: ' + errorMsg + ' Script: ' + url + ' Line: ' + lineNumber +
+    //             ' Column: ' + column);
+    //     };
+    //     return angularErrorHandler;
+    // });
 })(gamingPlatform || (gamingPlatform = {}));
 //# sourceMappingURL=angularExceptionHandler.js.map
+
 ;
 var GameStatus;
 (function (GameStatus) {
@@ -32159,8 +32155,6 @@ var gameLogic;
     }
     gameLogic.getInitialState = getInitialState;
     function checkSequenceMatchesExpected(currentState) {
-        console.log("checking sequence");
-        console.log(currentState);
         for (var i = 0; i < currentState.playerSequence.length; i++) {
             if (currentState.expectedSequence[i] !== currentState.playerSequence[i]) {
                 return false;
@@ -32172,20 +32166,14 @@ var gameLogic;
     function addToExpectedSequence(currentState) {
         var newColor = Math.floor(Math.random() * 4);
         currentState.expectedSequence.push(newColor);
-        console.log("returning new color", newColor);
         return newColor;
     }
     gameLogic.addToExpectedSequence = addToExpectedSequence;
     // if there is newly a loss, return the index of whoever just lost
     function getWinner(currentState, turnIndexOfMove) {
-        console.log("checking winner");
-        console.log(currentState);
         if (!checkSequenceMatchesExpected(currentState)) {
-            console.log("there is a winner");
-            console.log("this is the loser", turnIndexOfMove);
             return 1 - turnIndexOfMove;
         }
-        console.log("no winner");
         return -1; // no winner
     }
     gameLogic.getWinner = getWinner;
@@ -32193,12 +32181,10 @@ var gameLogic;
      * Returns the move that should be performed when player
      * with index turnIndexBeforeMove adds a move to their sequence.
      */
-    function createMove(stateBeforeMove, color, turnIndexBeforeMove) {
+    function createMove(stateBeforeMove, color, currentUpdateUI) {
         if (!stateBeforeMove) {
             stateBeforeMove = getInitialState();
         }
-        log.info("state passed into createMove");
-        log.info(stateBeforeMove);
         var nextStatus = GameStatus.AWAITING_INPUT;
         var sequence1 = stateBeforeMove.expectedSequence;
         var sequence2 = stateBeforeMove.playerSequence;
@@ -32206,6 +32192,7 @@ var gameLogic;
         var sequence2AfterMove = angular.copy(sequence2);
         stateBeforeMove.playerSequence.push(color);
         sequence2AfterMove.push(color);
+        var turnIndexBeforeMove = currentUpdateUI.move.turnIndexAfterMove;
         var winner = getWinner(stateBeforeMove, turnIndexBeforeMove);
         var endMatchScores;
         var turnIndexAfterMove;
@@ -32213,21 +32200,22 @@ var gameLogic;
             // Game over.
             nextStatus = GameStatus.ENDED;
             turnIndexAfterMove = -1;
-            endMatchScores = winner === 0 ? [1, 0] : winner === 1 ? [0, 1] : [0, 0];
+            endMatchScores = [];
+            for (var i = 0; i < currentUpdateUI.numberOfPlayers; i++) {
+                endMatchScores.push(0);
+            }
         }
         else {
             // Game continues. Now it"s the opponent"s turn (the turn switches from 0 to 1 and 1 to 0).
             // clear the player"s sequence so we can start the pattern over
             // but only if the player has submitted enough colors to make a full sequence
             if (sequence1AfterMove.length === sequence2AfterMove.length) {
-                log.info("submitted a full pattern, clearing");
                 sequence2AfterMove = [];
                 // add a new color for the next round
                 var newColor = addToExpectedSequence(stateBeforeMove);
-                console.log("next color in sequence", newColor);
                 sequence1AfterMove.push(newColor);
                 // switch players, but only once a full turn is completed
-                turnIndexAfterMove = 1 - turnIndexBeforeMove;
+                turnIndexAfterMove = (turnIndexBeforeMove + 1) % currentUpdateUI.numberOfPlayers;
                 nextStatus = GameStatus.AWAITING_NEXT_SEQUENCE_START;
             }
             else {
@@ -32248,7 +32236,8 @@ var gameLogic;
     gameLogic.createMove = createMove;
     function createInitialMove() {
         return {
-            endMatchScores: null, turnIndexAfterMove: 0,
+            endMatchScores: null,
+            turnIndexAfterMove: 0,
             stateAfterMove: getInitialState()
         };
     }
@@ -32276,16 +32265,43 @@ var game;
         translate.setLanguage("en");
         // log.log("Translation of "GAME_OVER" is " + translate("GAME_OVER"));
         resizeGameAreaService.setWidthToHeight(1);
+        // Note that for playAgainstTheComputer mode the number of players is always set to 1.
         moveService.setGame({
             minNumberOfPlayers: 2,
             maxNumberOfPlayers: 2,
             checkMoveOk: gameLogic.checkMoveOk,
             updateUI: updateUI,
-            gotMessageFromPlatform: null
+            communityUI: function (_) { },
+            getStateForOgImage: null
         });
         game.state = gameLogic.getInitialState();
+        postMessage({ gameReady: true }, "*");
     }
     game.init = init;
+    function isOver() {
+        return game.state.status === GameStatus.ENDED;
+    }
+    game.isOver = isOver;
+    function showGameOverMsg() {
+        return translate("GAME_OVER", {});
+    }
+    game.showGameOverMsg = showGameOverMsg;
+    function showPlayerIndicators() {
+        return currentUpdateUI && currentUpdateUI.playMode === "passAndPlay";
+    }
+    game.showPlayerIndicators = showPlayerIndicators;
+    function getPlayerIndices() {
+        if (!currentUpdateUI)
+            return [];
+        return currentUpdateUI.playersInfo.map(function (_, i) { return i; });
+    }
+    game.getPlayerIndices = getPlayerIndices;
+    function shouldHighlightPlayer(playerIndex) {
+        if (!currentUpdateUI)
+            return false;
+        return currentUpdateUI.yourPlayerIndex === playerIndex;
+    }
+    game.shouldHighlightPlayer = shouldHighlightPlayer;
     function registerServiceWorker() {
         if ("serviceWorker" in navigator) {
             var n = navigator;
@@ -32298,7 +32314,11 @@ var game;
         }
     }
     function getTranslations() {
-        return {};
+        return {
+            GAME_OVER: {
+                en: "Game Over!",
+            }
+        };
     }
     function getBtnClasses(currentStatus) {
         var classes = ["play-btn__icon", "fa"];
@@ -32322,23 +32342,20 @@ var game;
         switch (game.state.status) {
             case GameStatus.AWAITING_INPUT:
             case GameStatus.PLAYING_SEQUENCE:
-            case GameStatus.ENDED:
                 return true;
             default:
                 return false;
         }
     }
     game.isButtonDisabled = isButtonDisabled;
-    function isCanvasDisabled() {
-        switch (game.state.status) {
-            case GameStatus.PLAYING_SEQUENCE:
-            case GameStatus.ENDED:
-                return true;
-            default:
-                return false;
-        }
+    function arePadsDisabled() {
+        return game.state.status !== GameStatus.AWAITING_INPUT;
     }
-    game.isCanvasDisabled = isCanvasDisabled;
+    game.arePadsDisabled = arePadsDisabled;
+    function handleBtnClick() {
+        animateSequence(game.state, true);
+    }
+    game.handleBtnClick = handleBtnClick;
     function updateUI(updates) {
         didMakeMove = false; // Only one move per updateUI
         currentUpdateUI = updates;
@@ -32350,14 +32367,10 @@ var game;
         }
         else {
             game.state = updates.move.stateAfterMove;
-            // We calculate the AI move only after the animation finishes,
-            // because if we call aiService now
-            // then the animation will be paused until the javascript finishes.
-            animationEndedTimeout = $timeout(animationEndedCallback, 500);
         }
     }
     game.updateUI = updateUI;
-    function animateSequence(state, human, shouldPlayComputer) {
+    function animateSequence(state, human) {
         state.status = GameStatus.PLAYING_SEQUENCE;
         var playBtn = document.querySelector(".play-btn");
         var animationIntervalId = 0;
@@ -32368,11 +32381,6 @@ var game;
             animate = function () {
                 if (sequenceFinished()) {
                     endAnimation(animationIntervalId);
-                    if (typeof shouldPlayComputer !== "undefined") {
-                        setTimeout(function () {
-                            animateSequence(state, false, undefined);
-                        }, 1000);
-                    }
                 }
                 else {
                     pickElement(state.expectedSequence[i], true);
@@ -32455,24 +32463,11 @@ var game;
             myEl.removeClass("unHighlighted");
         }, 1500);
     }
-    function animationEndedCallback() {
-        log.info("Animation ended");
-        maybeSendComputerMove();
-    }
     function clearAnimationTimeout() {
         if (animationEndedTimeout) {
             $timeout.cancel(animationEndedTimeout);
             animationEndedTimeout = null;
         }
-    }
-    function maybeSendComputerMove() {
-        if (!isComputerTurn())
-            return;
-        console.debug("currentUpdateUI.move", currentUpdateUI.move);
-        var move = aiService.findComputerMove(currentUpdateUI.move);
-        log.info("Computer move: ", move);
-        animateSequence(game.state, true, true);
-        makeMove(move);
     }
     function makeMove(move) {
         console.log("trying to make a move", move);
@@ -32519,7 +32514,7 @@ var game;
         var nextMove = null;
         try {
             log.info("state on click", game.state);
-            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI.move.turnIndexAfterMove);
+            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI);
         }
         catch (e) {
             log.info(["there was a problem choosing the color:", color]);
@@ -32541,16 +32536,7 @@ angular.module("myApp", ["gameServices"])
 ;
 var aiService;
 (function (aiService) {
-    /** Returns the move that the computer player should do for the given state in move. */
-    function findComputerMove(move) {
-        return createComputerMove(move);
-    }
-    aiService.findComputerMove = findComputerMove;
-    /**
-     * Returns all the possible moves for the given state and turnIndexBeforeMove.
-     * Returns an empty array if the game is over.
-     */
-    function chooseFromPossibleMoves(state, turnIndexBeforeMove) {
+    function chooseFromPossibleMoves(state, currentUpdateUI) {
         var winningChoice = state.delta;
         var possibleMoves = [];
         var move;
@@ -32563,22 +32549,9 @@ var aiService;
         possibleMoves.push(winningChoice); // give a greater chance that we will choose the right color
         var choice = (Math.floor(Math.random() * possibleMoves.length));
         var num = possibleMoves[choice];
-        console.debug("num ", num);
-        move = gameLogic.createMove(state, num, turnIndexBeforeMove);
-        console.debug("choosing", move);
+        move = gameLogic.createMove(state, num, currentUpdateUI);
         return move;
     }
     aiService.chooseFromPossibleMoves = chooseFromPossibleMoves;
-    /**
-     * Returns the move that the computer player should do for the given state.
-     * alphaBetaLimits is an object that sets a limit on the alpha-beta search,
-     * and it has either a millisecondsLimit or maxDepth field:
-     * millisecondsLimit is a time limit, and maxDepth is a depth limit.
-     */
-    function createComputerMove(move) {
-        console.debug("move!", move);
-        return (move.turnIndexAfterMove, chooseFromPossibleMoves(move.stateAfterMove, move.turnIndexAfterMove));
-    }
-    aiService.createComputerMove = createComputerMove;
 })(aiService || (aiService = {}));
 //# sourceMappingURL=aiService.js.map

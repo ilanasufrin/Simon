@@ -184,7 +184,6 @@ body {
 
 .play-btn__icon {
   position: relative;
-  overflow: hidden;
   margin: 0 auto;
 }
 
@@ -280,4 +279,63 @@ body {
 
 .animating #greenRing, .animating #redRing, .animating #blueRing, .animating #yellowRing {
   animation: ghostPoint 1000ms ease-out;
+}
+
+#game-over {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, .5);
+  font-family: Roboto, sans-serif;
+  font-weight: 200;
+  font-size: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  #game-over {
+    font-size: 1.2rem;
+  }
+}
+
+.ng-cloack #game-over,
+#game-over.ng-hide {
+  display: inline-block !important;
+  visibility: hidden;
+}
+
+#player-indicators {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  left: 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 0 48px;
+}
+
+@media (max-width: 480px) {
+  #player-indicators {
+    height: 148px;
+  }
+}
+
+.player-indicator {
+  margin: 0 auto;
+  color: rgba(255, 255, 255, .5);
+  font-size: 2rem;
+}
+
+.player-indicator > .fa.active {
+  color: white;
+}
+
+.player-indicator > .fa::after {
+  content: attr(data-player-idx);
+  vertical-align: sub;
+  font-family: sans-serif;
+  font-size: .8rem;
+  padding-left: 4px;
 }
