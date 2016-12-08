@@ -8,7 +8,7 @@ var urlsToCache = [
   '//ilanasufrin.github.io/Simon/dist/js/everything.min.js',
   '//ilanasufrin.github.io/Simon/dist/css/everything.min.css',
 ];
-var CACHE_NAME = 'cache-v2016-12-05T00:13:21.173Z';
+var CACHE_NAME = 'cache-v2016-12-08T23:11:09.771Z';
 
 self.addEventListener('activate', function(event) {
   event.waitUntil(
