@@ -319,6 +319,7 @@ body {
 @media (max-width: 480px) {
   #player-indicators {
     height: 148px;
+    pointer-events: none;
   }
 }
 
@@ -326,6 +327,7 @@ body {
   margin: 0 auto;
   color: rgba(255, 255, 255, .5);
   font-size: 2rem;
+  pointer-events: none;
 }
 
 .player-indicator > .fa.active {
