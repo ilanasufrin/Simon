@@ -32408,6 +32408,7 @@ var game;
     game.animateSequence = animateSequence;
     function endAnimation(animationIntervalId) {
         clearInterval(animationIntervalId);
+        // ??? TODO ask Ilana about this
         $rootScope.$apply(function () {
             if (gameLogic.getWinner(game.state, 1) >= 0) {
                 // TODO: Refactor the ending logic into the ng elements
@@ -32443,7 +32444,8 @@ var game;
             audio.play();
         }
     }
-    function handleAnimationTiming(el, human) {
+    function handleAnimationTiming(el, human, baseTimeout) {
+        if (baseTimeout === void 0) { baseTimeout = 1000; }
         var myEl = angular.element(document.querySelector(el));
         myEl.addClass("highlighted");
         if (!human) {
@@ -32457,10 +32459,10 @@ var game;
         setTimeout(function () {
             myEl.addClass("unHighlighted");
             myEl.removeClass("highlighted");
-        }, 1000);
+        }, baseTimeout);
         setTimeout(function () {
             myEl.removeClass("unHighlighted");
-        }, 1500);
+        }, baseTimeout + (baseTimeout / 2));
     }
     function clearAnimationTimeout() {
         if (animationEndedTimeout) {
@@ -32523,6 +32525,9 @@ var game;
         log.info("move was legal");
         makeMove(nextMove);
         playSound(color);
+        if (!matchMedia("(hover: hover)").matches) {
+            handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
+        }
     }
     game.cellClicked = cellClicked;
 })(game || (game = {}));

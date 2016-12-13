@@ -164,6 +164,7 @@ namespace game {
   function endAnimation(animationIntervalId: number) {
     clearInterval(animationIntervalId);
 
+    // ??? TODO ask Ilana about this
     $rootScope.$apply(() => {
       if (gameLogic.getWinner(state, 1) >= 0) {
         // TODO: Refactor the ending logic into the ng elements
@@ -201,7 +202,7 @@ namespace game {
     }
   }
 
-  function handleAnimationTiming(el: string, human: boolean, ) {
+  function handleAnimationTiming(el: string, human: boolean, baseTimeout: number = 1000) {
     const myEl = angular.element(document.querySelector(el));
     myEl.addClass("highlighted");
 
@@ -217,10 +218,10 @@ namespace game {
     setTimeout(function() {
       myEl.addClass("unHighlighted");
       myEl.removeClass("highlighted");
-    }, 1000);
+    }, baseTimeout);
     setTimeout(function() {
       myEl.removeClass("unHighlighted");
-    }, 1500);
+    }, baseTimeout + (baseTimeout / 2));
   }
 
   function clearAnimationTimeout() {
@@ -291,6 +292,9 @@ namespace game {
     log.info("move was legal");
     makeMove(nextMove);
     playSound(color);
+    if (!matchMedia("(hover: hover)").matches) {
+      handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
+    }
   }
 
 }

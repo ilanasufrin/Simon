@@ -84,12 +84,14 @@ body {
   pointer-events: none;
 }
 
-.pad:hover {
-  opacity: .7;
-}
+@media (hover: hover) {
+  .pad:hover {
+    opacity: .7;
+  }
 
-.pad:active {
-  opacity: 1;
+  .pad:active {
+    opacity: 1;
+  }
 }
 
 .green {
@@ -317,18 +319,16 @@ body {
   padding: 0 48px;
 }
 
-@media (max-width: 480px) {
-  #player-indicators {
-    height: 148px;
-    pointer-events: none;
-  }
-}
-
 .player-indicator {
   margin: 0 auto;
   color: rgba(255, 255, 255, .5);
   font-size: 2rem;
-  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .player-indicator {
+    font-size: 1.3rem;
+  }
 }
 
 .player-indicator > .fa.active {
