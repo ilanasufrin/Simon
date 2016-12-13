@@ -157,7 +157,6 @@ var game;
     game.animateSequence = animateSequence;
     function endAnimation(animationIntervalId) {
         clearInterval(animationIntervalId);
-        // ??? TODO ask Ilana about this
         $rootScope.$apply(function () {
             if (gameLogic.getWinner(game.state, 1) >= 0) {
                 // TODO: Refactor the ending logic into the ng elements
