@@ -292,7 +292,7 @@ namespace game {
     makeMove(nextMove);
     playSound(color);
     if (!matchMedia("(hover: hover)").matches) {
-      handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
+      window.requestAnimationFrame(handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400));
     }
   }
 
