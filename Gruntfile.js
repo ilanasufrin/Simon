@@ -194,14 +194,30 @@ module.exports = function(grunt) {
             'js/everything.min.js',
             'css/everything.min.css',
             'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
-            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff?v=4.7.0'
+            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff?v=4.7.0',
+            'exports/simonSound0.mp3',
+            'exports/simonSound1.mp3',
+            'exports/simonSound2.mp3',
+            'exports/simonSound3.mp3',
+            'exports/RedPad.svg',
+            'exports/BluePad.svg',
+            'exports/YellowPad.svg',
+            'exports/GreenPad.svg'
           ],
           network: [
             'service-worker.js',
             'js/everything.min.js.map',
             'js/everything.js',
             'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css',
-            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff?v=4.7.0'
+            'https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/fonts/fontawesome-webfont.woff?v=4.7.0',
+            'exports/simonSound0.mp3',
+            'exports/simonSound1.mp3',
+            'exports/simonSound2.mp3',
+            'exports/simonSound3.mp3',
+            'exports/RedPad.svg',
+            'exports/BluePad.svg',
+            'exports/YellowPad.svg',
+            'exports/GreenPad.svg'
           ],
           timestamp: true
         },
