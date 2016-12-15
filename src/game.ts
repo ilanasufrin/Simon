@@ -214,13 +214,13 @@ namespace game {
       myEl.addClass("animating");
     }
 
-    window.requestAnimationFrame(setTimeout(function() {
+    window.requestAnimationFrame(function() { setTimeout(function() {
       myEl.addClass("unHighlighted");
       myEl.removeClass("highlighted");
-    }, baseTimeout));
-    window.requestAnimationFrame(setTimeout(function() {
+    }, baseTimeout)});
+    window.requestAnimationFrame(function() { setTimeout(function() {
       myEl.removeClass("unHighlighted");
-    }, baseTimeout + (baseTimeout / 2)));
+    }, baseTimeout + (baseTimeout / 2))});
   }
 
   function clearAnimationTimeout() {
