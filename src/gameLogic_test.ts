@@ -178,11 +178,18 @@ describe("Simon gameLogic", () => {
 
   describe("createInitialMove", () => {
     it("returns the initial move", () => {
-      expect(gameLogic.createInitialMove()).toEqual({
-        endMatchScores: null,
-        turnIndexAfterMove: 0,
-        stateAfterMove: gameLogic.getInitialState()
-      });
+      expect(gameLogic.createInitialMove()).toEqual(
+        {
+          endMatchScores: null,
+          turnIndexAfterMove: 0,
+          stateAfterMove: {
+            status: GameStatus.IDLE,
+            expectedSequence: [jasmine.any(Number)],
+            playerSequence: [],
+            delta: null
+          }
+        }
+      );
     });
   });
 

@@ -160,7 +160,12 @@ describe("Simon gameLogic", function () {
             expect(gameLogic.createInitialMove()).toEqual({
                 endMatchScores: null,
                 turnIndexAfterMove: 0,
-                stateAfterMove: gameLogic.getInitialState()
+                stateAfterMove: {
+                    status: GameStatus.IDLE,
+                    expectedSequence: [jasmine.any(Number)],
+                    playerSequence: [],
+                    delta: null
+                }
             });
         });
     });
