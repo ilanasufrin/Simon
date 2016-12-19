@@ -197,7 +197,7 @@ namespace game {
   function playSound(el: number) {
     let audio = <HTMLAudioElement>document.getElementById("simonSound" + el);
     if (audio) {
-      audio.play();
+      // audio.play();
     }
   }
 
