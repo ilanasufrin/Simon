@@ -32572,10 +32572,10 @@ var game;
     }
     function makeMove(move) {
         // debugger;
-        console.log("trying to make a move", move);
-        if (game.state.playerSequence.length !== game.state.expectedSequence.length - 1) {
-            return;
-        }
+        console.debug("trying to make a move", move);
+        // if (state.playerSequence.length !== state.expectedSequence.length -1) {
+        //   return;
+        // }
         if (didMakeMove) {
             return;
         }
@@ -32587,6 +32587,9 @@ var game;
             move.stateAfterMove.playerSequence.push(num);
         }
         // end hack
+        if (game.state.playerSequence.length !== game.state.expectedSequence.length - 1) {
+            move = null;
+        }
         moveService.makeMove(move);
     }
     function isFirstMove() {
@@ -32632,7 +32635,7 @@ var game;
         // }
         // Move is legal, make it!
         log.info("move was legal");
-        if (game.state.playerSequence.length === game.state.expectedSequence.length) {
+        if (game.state.playerSequence.length === game.state.expectedSequence.length - 1) {
             makeMove(nextMove);
         }
         playSound(color);

@@ -232,10 +232,10 @@ namespace game {
 
   function makeMove(move: IMove) {
     // debugger;
-    console.log("trying to make a move", move);
-    if (state.playerSequence.length !== state.expectedSequence.length -1 ) {
-      return;
-    }
+    console.debug("trying to make a move", move);
+    // if (state.playerSequence.length !== state.expectedSequence.length -1) {
+    //   return;
+    // }
     if (didMakeMove) { // Only one move per updateUI
       return;
     }
@@ -247,6 +247,9 @@ namespace game {
       move.stateAfterMove.playerSequence.push(num);
     }
     // end hack
+    if (state.playerSequence.length !== state.expectedSequence.length -1) {
+      move = null;
+    }
     moveService.makeMove(move);
   }
 
@@ -303,7 +306,7 @@ namespace game {
     log.info("move was legal");
 
 
-    if (state.playerSequence.length === state.expectedSequence.length) {
+    if (state.playerSequence.length === state.expectedSequence.length -1 ) {
       makeMove(nextMove);
     }
 
