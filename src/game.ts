@@ -303,7 +303,7 @@ namespace game {
     log.info("move was legal");
 
 
-    if (state.playerSequence.length === state.expectedSequence.length -1 ) {
+    if (state.playerSequence.length === state.expectedSequence.length) {
       makeMove(nextMove);
     }
 

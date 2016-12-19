@@ -32632,7 +32632,7 @@ var game;
         // }
         // Move is legal, make it!
         log.info("move was legal");
-        if (game.state.playerSequence.length === game.state.expectedSequence.length - 1) {
+        if (game.state.playerSequence.length === game.state.expectedSequence.length) {
             makeMove(nextMove);
         }
         playSound(color);
