@@ -280,9 +280,9 @@ var game;
         // }
         // Move is legal, make it!
         log.info("move was legal");
-        // if (sequenceFinished) {
-        makeMove(nextMove);
-        // }
+        if (game.state.playerSequence.length === game.state.expectedSequence.length - 1) {
+            makeMove(nextMove);
+        }
         playSound(color);
         if (!matchMedia("(min-width: 600px)").matches) {
             handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);

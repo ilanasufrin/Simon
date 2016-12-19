@@ -303,9 +303,10 @@ namespace game {
     log.info("move was legal");
 
 
-    // if (sequenceFinished) {
+    if (state.playerSequence.length === state.expectedSequence.length -1 ) {
       makeMove(nextMove);
-    // }
+    }
+
     playSound(color);
     if (!matchMedia("(min-width: 600px)").matches) {
      handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
