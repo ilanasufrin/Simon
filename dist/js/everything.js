@@ -32587,7 +32587,7 @@ var game;
             move.stateAfterMove.playerSequence.push(num);
         }
         // end hack
-        //store the current play
+        //store the current player
         var currentPlayer = move.turnIndexAfterMove;
         if (game.state.playerSequence.length !== game.state.expectedSequence.length - 1) {
             move.turnIndexAfterMove = currentPlayer;
@@ -32638,8 +32638,10 @@ var game;
         // Move is legal, make it!
         log.info("move was legal");
         // if (state.playerSequence.length >= state.expectedSequence.length - 1) {
-        makeMove(nextMove);
-        // }
+        if ((nextMove.stateAfterMove.playerSequence.length == nextMove.stateAfterMove.expectedSequence.length) || !nextMove.stateAfterMove.playerSequence.length) {
+            console.debug('going to call makeMove', nextMove);
+            makeMove(nextMove);
+        }
         playSound(color);
         if (!matchMedia("(min-width: 600px)").matches) {
             handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);

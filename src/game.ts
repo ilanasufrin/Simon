@@ -247,13 +247,14 @@ namespace game {
       move.stateAfterMove.playerSequence.push(num);
     }
     // end hack
-    //store the current play
+    //store the current player
     let currentPlayer = move.turnIndexAfterMove;
     if (state.playerSequence.length !== state.expectedSequence.length -1) {
       move.turnIndexAfterMove = currentPlayer;
     }
 
     moveService.makeMove(move);
+
   }
 
   function isFirstMove() {
@@ -310,8 +311,10 @@ namespace game {
 
 
     // if (state.playerSequence.length >= state.expectedSequence.length - 1) {
+      if ((nextMove.stateAfterMove.playerSequence.length == nextMove.stateAfterMove.expectedSequence.length) || !nextMove.stateAfterMove.playerSequence.length) {
+      console.debug('going to call makeMove', nextMove);
       makeMove(nextMove);
-    // }
+    }
 
     playSound(color);
     if (!matchMedia("(min-width: 600px)").matches) {
