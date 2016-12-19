@@ -31331,10 +31331,10 @@ var gamingPlatform;
             if (setTurnOrEndMatchCount !== 1) {
                 throwError("We must have either SetTurn or EndMatch, but not both: setTurnOrEndMatchCount=" + setTurnOrEndMatchCount);
             }
-            if (moveNumber > 1 &&
-                turnIndex == turnIndexBeforeMove) {
-                throwError("turnIndex must be different from turnIndexBeforeMove, but both are equal to " + turnIndex);
-            }
+            // if (moveNumber > 1 &&
+            //     turnIndex == turnIndexBeforeMove) {
+            //     throwError("turnIndex must be different from turnIndexBeforeMove, but both are equal to " + turnIndex);
+            // }
             if (!(turnIndex >= -1 && turnIndex < playersInfo.length)) {
                 throwError("turnIndex must be between -1 and " + playersInfo.length + ", but it was " + turnIndex + ".");
             }
@@ -32625,7 +32625,7 @@ var game;
         log.info("move was legal");
         makeMove(nextMove);
         playSound(color);
-        if (!matchMedia("(hover: hover)").matches) {
+        if (!matchMedia("(min-width: 600px)").matches) {
             handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
         }
     }

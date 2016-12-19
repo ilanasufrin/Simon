@@ -292,7 +292,7 @@ namespace game {
     log.info("move was legal");
     makeMove(nextMove);
     playSound(color);
-    if (!matchMedia("(hover: hover)").matches) {
+    if (!matchMedia("(min-width: 600px)").matches) {
      handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
     }
   }
