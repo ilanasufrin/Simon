@@ -3,3 +3,4 @@ node_modules
 .DS_Store
 .tscache
 ts_output_readonly_do_NOT_change_manually
+test.html

@@ -32556,17 +32556,13 @@ var game;
             myEl[0].offsetWidth;
             myEl.addClass("animating");
         }
-        window.requestAnimationFrame(function () {
-            setTimeout(function () {
-                myEl.addClass("unHighlighted");
-                myEl.removeClass("highlighted");
-            }, baseTimeout);
-        });
-        window.requestAnimationFrame(function () {
-            setTimeout(function () {
-                myEl.removeClass("unHighlighted");
-            }, baseTimeout + (baseTimeout / 2));
-        });
+        setTimeout(function () {
+            myEl.addClass("unHighlighted");
+            myEl.removeClass("highlighted");
+        }, baseTimeout);
+        setTimeout(function () {
+            myEl.removeClass("unHighlighted");
+        }, baseTimeout + (baseTimeout / 2));
     }
     function clearAnimationTimeout() {
         if (animationEndedTimeout) {
