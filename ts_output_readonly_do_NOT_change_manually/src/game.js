@@ -235,8 +235,10 @@ var game;
             move.stateAfterMove.playerSequence.push(num);
         }
         // end hack
+        //store the current play
+        var currentPlayer = move.turnIndexAfterMove;
         if (game.state.playerSequence.length !== game.state.expectedSequence.length - 1) {
-            move = null;
+            move.turnIndexAfterMove = currentPlayer;
         }
         moveService.makeMove(move);
     }
@@ -262,9 +264,9 @@ var game;
     }
     function cellClicked(color) {
         log.info("Clicked on color:", color);
-        var i = 0;
-        i++;
-        var sequenceFinished = function () { return i === game.state.expectedSequence.length; };
+        // let i = 0;
+        // i++;
+        // const sequenceFinished = () => i === state.expectedSequence.length;
         if (!isHumanTurn())
             return;
         if (window.location.search === "?throwException") {
@@ -283,9 +285,9 @@ var game;
         // }
         // Move is legal, make it!
         log.info("move was legal");
-        if (game.state.playerSequence.length === game.state.expectedSequence.length - 1) {
-            makeMove(nextMove);
-        }
+        // if (state.playerSequence.length >= state.expectedSequence.length - 1) {
+        makeMove(nextMove);
+        // }
         playSound(color);
         if (!matchMedia("(min-width: 600px)").matches) {
             handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);

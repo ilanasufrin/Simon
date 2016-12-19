@@ -247,9 +247,12 @@ namespace game {
       move.stateAfterMove.playerSequence.push(num);
     }
     // end hack
+    //store the current play
+    let currentPlayer = move.turnIndexAfterMove;
     if (state.playerSequence.length !== state.expectedSequence.length -1) {
-      move = null;
+      move.turnIndexAfterMove = currentPlayer;
     }
+
     moveService.makeMove(move);
   }
 
@@ -282,9 +285,9 @@ namespace game {
 
   export function cellClicked(color: number): void {
     log.info("Clicked on color:", color);
-    let i = 0;
-    i++;
-    const sequenceFinished = () => i === state.expectedSequence.length;
+    // let i = 0;
+    // i++;
+    // const sequenceFinished = () => i === state.expectedSequence.length;
 
     if (!isHumanTurn()) return;
     if (window.location.search === "?throwException") { // to test encoding a stack trace with sourcemap
@@ -306,9 +309,9 @@ namespace game {
     log.info("move was legal");
 
 
-    if (state.playerSequence.length === state.expectedSequence.length -1 ) {
+    // if (state.playerSequence.length >= state.expectedSequence.length - 1) {
       makeMove(nextMove);
-    }
+    // }
 
     playSound(color);
     if (!matchMedia("(min-width: 600px)").matches) {
