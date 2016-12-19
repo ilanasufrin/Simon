@@ -32570,6 +32570,7 @@ var game;
         }
     }
     function makeMove(move) {
+        debugger;
         console.log("trying to make a move", move);
         if (didMakeMove) {
             return;

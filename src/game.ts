@@ -231,6 +231,7 @@ namespace game {
   }
 
   function makeMove(move: IMove) {
+    debugger;
     console.log("trying to make a move", move);
     if (didMakeMove) { // Only one move per updateUI
       return;
