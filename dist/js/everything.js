@@ -32624,7 +32624,11 @@ var game;
         }
         // Move is legal, make it!
         log.info("move was legal");
-        makeMove(nextMove);
+        var i = 0;
+        var sequenceFinished = function () { return i === game.state.expectedSequence.length; };
+        if (sequenceFinished) {
+            makeMove(nextMove);
+        }
         playSound(color);
         if (!matchMedia("(min-width: 600px)").matches) {
             handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
