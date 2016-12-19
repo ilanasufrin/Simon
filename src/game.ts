@@ -276,22 +276,30 @@ namespace game {
 
   export function cellClicked(color: number): void {
     log.info("Clicked on color:", color);
+    let i = 0;
+    i++;
+    const sequenceFinished = () => i === state.expectedSequence.length;
+
     if (!isHumanTurn()) return;
     if (window.location.search === "?throwException") { // to test encoding a stack trace with sourcemap
       throw new Error(`Throwing the error because URL has "?throwException"`);
     }
     let nextMove: IMove = null;
-    try {
-      log.info("state on click", state);
-      nextMove = gameLogic.createMove(state, color, currentUpdateUI);
-    } catch (e) {
-      log.info(["there was a problem choosing the color:", color]);
-      return;
+    if (sequenceFinished) {
+      try {
+        log.info("state on click", state);
+        nextMove = gameLogic.createMove(state, color, currentUpdateUI);
+      } catch (e) {
+        log.info(["there was a problem choosing the color:", color]);
+        return;
+      }
     }
+
+
     // Move is legal, make it!
     log.info("move was legal");
-    let i = 0;
-    const sequenceFinished = () => i === state.expectedSequence.length;
+
+
     if (sequenceFinished) {
       makeMove(nextMove);
     }

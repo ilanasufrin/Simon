@@ -32608,24 +32608,27 @@ var game;
     }
     function cellClicked(color) {
         log.info("Clicked on color:", color);
+        var i = 0;
+        i++;
+        var sequenceFinished = function () { return i === game.state.expectedSequence.length; };
         if (!isHumanTurn())
             return;
         if (window.location.search === "?throwException") {
             throw new Error("Throwing the error because URL has \"?throwException\"");
         }
         var nextMove = null;
-        try {
-            log.info("state on click", game.state);
-            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI);
-        }
-        catch (e) {
-            log.info(["there was a problem choosing the color:", color]);
-            return;
+        if (sequenceFinished) {
+            try {
+                log.info("state on click", game.state);
+                nextMove = gameLogic.createMove(game.state, color, currentUpdateUI);
+            }
+            catch (e) {
+                log.info(["there was a problem choosing the color:", color]);
+                return;
+            }
         }
         // Move is legal, make it!
         log.info("move was legal");
-        var i = 0;
-        var sequenceFinished = function () { return i === game.state.expectedSequence.length; };
         if (sequenceFinished) {
             makeMove(nextMove);
         }
