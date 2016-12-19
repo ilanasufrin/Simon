@@ -32541,6 +32541,7 @@ var game;
     function playSound(el) {
         var audio = document.getElementById("simonSound" + el);
         if (audio) {
+            audio.play();
         }
     }
     function handleAnimationTiming(el, human, baseTimeout) {
