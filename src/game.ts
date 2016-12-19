@@ -233,6 +233,9 @@ namespace game {
   function makeMove(move: IMove) {
     // debugger;
     console.log("trying to make a move", move);
+    if (state.playerSequence.length !== state.expectedSequence.length -1 ) {
+      return;
+    }
     if (didMakeMove) { // Only one move per updateUI
       return;
     }
@@ -285,7 +288,7 @@ namespace game {
       throw new Error(`Throwing the error because URL has "?throwException"`);
     }
     let nextMove: IMove = null;
-    if (sequenceFinished) {
+    // if (sequenceFinished) {
       try {
         log.info("state on click", state);
         nextMove = gameLogic.createMove(state, color, currentUpdateUI);
@@ -293,16 +296,16 @@ namespace game {
         log.info(["there was a problem choosing the color:", color]);
         return;
       }
-    }
+    // }
 
 
     // Move is legal, make it!
     log.info("move was legal");
 
 
-    if (sequenceFinished) {
+    // if (sequenceFinished) {
       makeMove(nextMove);
-    }
+    // }
     playSound(color);
     if (!matchMedia("(min-width: 600px)").matches) {
      handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);

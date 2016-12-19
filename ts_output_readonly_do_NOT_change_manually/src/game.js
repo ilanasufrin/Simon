@@ -221,6 +221,9 @@ var game;
     function makeMove(move) {
         // debugger;
         console.log("trying to make a move", move);
+        if (game.state.playerSequence.length !== game.state.expectedSequence.length - 1) {
+            return;
+        }
         if (didMakeMove) {
             return;
         }
@@ -265,21 +268,21 @@ var game;
             throw new Error("Throwing the error because URL has \"?throwException\"");
         }
         var nextMove = null;
-        if (sequenceFinished) {
-            try {
-                log.info("state on click", game.state);
-                nextMove = gameLogic.createMove(game.state, color, currentUpdateUI);
-            }
-            catch (e) {
-                log.info(["there was a problem choosing the color:", color]);
-                return;
-            }
+        // if (sequenceFinished) {
+        try {
+            log.info("state on click", game.state);
+            nextMove = gameLogic.createMove(game.state, color, currentUpdateUI);
         }
+        catch (e) {
+            log.info(["there was a problem choosing the color:", color]);
+            return;
+        }
+        // }
         // Move is legal, make it!
         log.info("move was legal");
-        if (sequenceFinished) {
-            makeMove(nextMove);
-        }
+        // if (sequenceFinished) {
+        makeMove(nextMove);
+        // }
         playSound(color);
         if (!matchMedia("(min-width: 600px)").matches) {
             handleAnimationTiming([".green", ".red", ".yellow", ".blue"][color], true, /* basetimeout */ 400);
