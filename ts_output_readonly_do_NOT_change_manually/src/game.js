@@ -117,8 +117,13 @@ var game;
         else {
             game.state = updates.move.stateAfterMove;
         }
+        animationEndedCallback(); //TODO MAYBE REMOVE
     }
     game.updateUI = updateUI;
+    function animationEndedCallback() {
+        log.info("Animation ended");
+        maybeSendComputerMove();
+    }
     function animateSequence(state, human) {
         state.status = GameStatus.PLAYING_SEQUENCE;
         var playBtn = document.querySelector(".play-btn");
@@ -220,6 +225,12 @@ var game;
     }
     function makeMove(move) {
         // debugger;
+        if (isComputerTurn()) {
+            // move.turnIndexAfterMove = 0; // we don't actually want the computer to move
+            // move.stateAfterMove.playerSequence.pop();
+            game.state.playerSequence.pop();
+            game.state.expectedSequence.pop();
+        }
         console.debug("trying to make a move", move);
         // if (state.playerSequence.length !== state.expectedSequence.length -1) {
         //   return;
@@ -249,10 +260,12 @@ var game;
         return currentUpdateUI.yourPlayerIndex;
     }
     function isComputer() {
-        return currentUpdateUI.playersInfo[currentUpdateUI.yourPlayerIndex].playerId === "";
+        // return currentUpdateUI.playersInfo[currentUpdateUI.yourPlayerIndex].playerId === "";
+        return false;
     }
     function isComputerTurn() {
-        return isMyTurn() && isComputer();
+        // return isMyTurn() && isComputer();
+        return false;
     }
     function maybeSendComputerMove() {
         console.log("maybeSendComputerMove");
@@ -260,7 +273,7 @@ var game;
             return;
         var move = aiService.chooseFromPossibleMoves(game.state, currentUpdateUI);
         log.info("Computer move: ", move);
-        move.turnIndexAfterMove = 0;
+        // move.turnIndexAfterMove = 0;
         // log.info("actual comp move", move);
         //NEW UPDATE- just automatically choose the right move, don't worry about an AI
         makeMove(move);

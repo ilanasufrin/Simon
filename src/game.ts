@@ -122,6 +122,12 @@ namespace game {
     } else {
       state = updates.move.stateAfterMove;
     }
+    animationEndedCallback(); //TODO MAYBE REMOVE
+  }
+
+  function animationEndedCallback() { //TODO MAYBE REMOVE
+    log.info("Animation ended");
+    maybeSendComputerMove();
   }
 
   export function animateSequence(state: IState, human: boolean) {
@@ -232,6 +238,14 @@ namespace game {
 
   function makeMove(move: IMove) {
     // debugger;
+    if (isComputerTurn()) {
+      // move.turnIndexAfterMove = 0; // we don't actually want the computer to move
+      // move.stateAfterMove.playerSequence.pop();
+      state.playerSequence.pop();
+      state.expectedSequence.pop();
+      // return;
+    }
+
     console.debug("trying to make a move", move);
     // if (state.playerSequence.length !== state.expectedSequence.length -1) {
     //   return;
@@ -266,11 +280,13 @@ namespace game {
   }
 
   function isComputer() {
-    return currentUpdateUI.playersInfo[currentUpdateUI.yourPlayerIndex].playerId === "";
+    // return currentUpdateUI.playersInfo[currentUpdateUI.yourPlayerIndex].playerId === "";
+    return false;
   }
 
   function isComputerTurn() {
-    return isMyTurn() && isComputer();
+    // return isMyTurn() && isComputer();
+    return false;
   }
 
    function maybeSendComputerMove() {
@@ -279,12 +295,13 @@ namespace game {
     let move = aiService.chooseFromPossibleMoves(state, currentUpdateUI);
     log.info("Computer move: ", move);
 
-    move.turnIndexAfterMove = 0;
+    // move.turnIndexAfterMove = 0;
 
     // log.info("actual comp move", move);
 
     //NEW UPDATE- just automatically choose the right move, don't worry about an AI
     makeMove(move);
+
   }
 
   function isHumanTurn() {
