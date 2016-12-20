@@ -254,6 +254,17 @@ var game;
     function isComputerTurn() {
         return isMyTurn() && isComputer();
     }
+    function maybeSendComputerMove() {
+        console.log("maybeSendComputerMove");
+        if (!isComputerTurn())
+            return;
+        var move = aiService.chooseFromPossibleMoves(game.state, currentUpdateUI);
+        log.info("Computer move: ", move);
+        move.turnIndexAfterMove = 0;
+        // log.info("actual comp move", move);
+        //NEW UPDATE- just automatically choose the right move, don't worry about an AI
+        makeMove(move);
+    }
     function isHumanTurn() {
         return isMyTurn() && !isComputer();
     }
